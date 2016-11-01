@@ -47,7 +47,8 @@ public class ExportGeo extends BaseModule {
 		// ===== Connection =====
 
 		MongoClient mongoClient = MongoUtil.buildMongoClient();
-		MongoDatabase db = mongoClient.getDatabase("geo");
+		MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
+		
 		MongoCollection<Document> collection = db.getCollection("samples");
 
 		// ===== Find exp_group in the database =====

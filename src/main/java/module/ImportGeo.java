@@ -36,12 +36,15 @@ import static com.mongodb.client.model.Filters.*;
 public class ImportGeo {
 
 
-	// private String [] listGseNumber = {"GSE2109"};
+	// private String [] listGseNumber = {"GSE10846"};
 
+	
 	private String [] listGseNumber = {"GSE51032", "GSE10843", "GSE10846", "GSE30219", "GSE15431", "GSE3202", "GSE13309", 
 			"GSE14315", "GSE6013", "GSE3526", "GSE10890", "GSE8045", "GSE11092", "GSE9031", "GSE4824", "GSE9119", "GSE15240", 
 			"GSE9440", "GSE17708", "GSE9984", "GSE3156", "GSE18809", "GSE12417", "GSE12662", "GSE25219", "GSE19735", "GSE6400", 
 			"GSE6872", "GSE7434", "GSE5816", "GSE5823", "GSE3744", "GSE6891", "GSE11877", "GSE7440", "GSE13159", "GSE34861", "GSE2109"};
+
+	
 	
 	private WebService webService = new WebService();
 	private Date today = new Date();
@@ -51,7 +54,7 @@ public class ImportGeo {
 		// ===== Connection =====
 
 		MongoClient mongoClient = MongoUtil.buildMongoClient();
-		MongoDatabase db = mongoClient.getDatabase("geo");
+		MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
 
 		// ===== Insert data =====
 
@@ -92,7 +95,7 @@ public class ImportGeo {
 
 				NcbiGeoGpl gpl = new NcbiGeoGpl(webService.loadGeo(gse.getListGpl().get(i)));
 
-				System.out.println("\t Import platforms " + gpl.getGplNumber());
+				System.out.println("\t Import platform " + gpl.getGplNumber());
 
 				Document docPlatforms = new Document();
 				docPlatforms
@@ -117,13 +120,13 @@ public class ImportGeo {
 
 			MongoCollection<Document> collectionSamples = db.getCollection("samples");
 
-			// for (int i=0; i<10; i++) {
+			// for (int i=0; i<1; i++) {
 			for (int i=0; i<gse.getListGsm().size(); i++) {
 
 				NcbiGeoGsm gsm = new NcbiGeoGsm(webService.loadGeo(gse.getListGsm().get(i)));
 				
 				Document docSampleExist = collectionSamples.find(Filters.eq("_id", gsm.getGsmNumber())).first();
-				boolean docAlreadyExist =  docSampleExist!=null;
+				boolean docAlreadyExist = docSampleExist!=null;
 				
 				boolean analysed = false;
 				
@@ -252,15 +255,16 @@ public class ImportGeo {
 		List<String> listText = new ArrayList<String>();
 
 		for (String line : list) {
-
 			if (line.contains(":") || line.contains("=")) {
 
 				String [] parts = line.split(regex);
 
 				if (parts!=null && parts.length>1) {
+					
 					String key = parts[0].trim();
 					key = key.replaceAll("\\.", " ");
 					String value = "";
+					
 					for (int i=1; i<parts.length; i++) {
 						value = value + parts[i].trim();
 						if (i!=parts.length-1) {
@@ -270,7 +274,6 @@ public class ImportGeo {
 					value = value.trim();
 					doc.append(key, value);
 				}
-
 			}
 
 			else {

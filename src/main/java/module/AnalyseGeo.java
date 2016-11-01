@@ -50,18 +50,19 @@ public class AnalyseGeo extends BaseModule {
 	private Map <String, Set<String>> mapRecognizedSeveral = new HashMap <String, Set<String>>();
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	public AnalyseGeo () {
 
 
 		// ===== Session PostgreSQL =====
-		SessionFactory sessionFactory = HibernateUtil.buildSessionFactory("epimed/epimed_database/config/epimed_prod.hibernate.cfg.xml");
+		SessionFactory sessionFactory = HibernateUtil.buildSessionFactory("config/epimed_semantic.hibernate.cfg.xml");
 		Session session = sessionFactory.openSession();
 
 		// ===== Session Mongo =====
 
 		MongoClient mongoClient = MongoUtil.buildMongoClient();
-		MongoDatabase db = mongoClient.getDatabase("geo");
+		MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
+		
 		MongoCollection<Document> collection = db.getCollection("samples");
 		List<Document> listDocuments = collection
 				.find(Filters.eq("main_gse_number", gseNumber))
@@ -104,7 +105,7 @@ public class AnalyseGeo extends BaseModule {
 
 
 			Map <String, List<Object>> mapOntologyObjects = ontologyService.recognizeOntologyObjects(listEntries);
-			Map <ClOntologyCategory, Set<String>> mapOntologyCategories = ontologyService.getMapOntologyCategories();
+			// Map <ClOntologyCategory, Set<String>> mapOntologyCategories = ontologyService.getMapOntologyCategories();
 			// this.generateSummary(ontologyService, mapOntologyCategories, mapOntologyObjects);
 
 
