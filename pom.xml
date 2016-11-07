@@ -20,7 +20,7 @@
 		<joda.version>2.9.3</joda.version>
 		<jackson.version>2.7.3</jackson.version>
 		<opencsv.version>2.3</opencsv.version>
-		<mongo.version>3.3.0</mongo.version>
+		<mongo.version>3.4.0-rc1</mongo.version>
 	</properties>
 
 <dependencies>

@@ -36,14 +36,14 @@ import static com.mongodb.client.model.Filters.*;
 public class ImportGeo {
 
 
-	// private String [] listGseNumber = {"GSE10846"};
+	private String [] listGseNumber = {"GSE30219"};
 
-	
+	/*
 	private String [] listGseNumber = {"GSE51032", "GSE10843", "GSE10846", "GSE30219", "GSE15431", "GSE3202", "GSE13309", 
 			"GSE14315", "GSE6013", "GSE3526", "GSE10890", "GSE8045", "GSE11092", "GSE9031", "GSE4824", "GSE9119", "GSE15240", 
 			"GSE9440", "GSE17708", "GSE9984", "GSE3156", "GSE18809", "GSE12417", "GSE12662", "GSE25219", "GSE19735", "GSE6400", 
 			"GSE6872", "GSE7434", "GSE5816", "GSE5823", "GSE3744", "GSE6891", "GSE11877", "GSE7440", "GSE13159", "GSE34861", "GSE2109"};
-
+	*/
 	
 	
 	private WebService webService = new WebService();
@@ -54,8 +54,9 @@ public class ImportGeo {
 		// ===== Connection =====
 
 		MongoClient mongoClient = MongoUtil.buildMongoClient();
-		MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
-
+		// MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
+		MongoDatabase db = mongoClient.getDatabase("geo");
+		
 		// ===== Insert data =====
 
 		for (int k=0; k<listGseNumber.length; k++) {
