@@ -90,8 +90,9 @@ public class QueryAvailableData extends BaseModule {
 		
 		// === Export Geo for a list of idSeries ===
 		
-		String[] listIdSeries = {"GSE11092","GSE13309", "GSE13159"};
+		// String[] listIdSeries = {"GSE11092","GSE13309", "GSE13159"};
 		
+		/*
 		List<Document> docExpGroup = collectionSamples
 				.find(Filters.in("series", listIdSeries))
 				.projection(Projections.fields(Projections.include("exp_group"), Projections.excludeId()))
@@ -103,11 +104,27 @@ public class QueryAvailableData extends BaseModule {
 		System.out.println(header);
 		displayMatrix(data);
 		
+		*/
 		// List<Object> listObjects = formatService.convertHeterogeneousMongoDocuments(docExpGroup, "exp_group");
 		// displayMatrix(listObjects);
 		
 		// List<Object> listObjects = formatService.convertHomogeneousMongoDocuments(listDocuments);
 
+		
+		// === Find series ===
+		
+		String[] listIdSamples = {"GSM80908", "GSM274639","GSM274638", "GSM280213"};
+		List<Document> listDocuments = collectionSamples.aggregate(
+			      Arrays.asList(
+			              Aggregates.match(Filters.in("_id", listIdSamples)),
+			              Aggregates.group("$main_gse_number"),
+			              Aggregates.sort(Sorts.orderBy(Sorts.ascending("main_gse_numbe")))
+			      )
+				)
+			.into(new ArrayList<Document>());
+		List<Object> listObjects = formatService.convertHomogeneousMongoDocuments(listDocuments);
+		displayMatrix(listObjects);
+		
 		mongoClient.close();	
 	}
 

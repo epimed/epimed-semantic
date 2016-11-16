@@ -44,6 +44,8 @@ public class AnalyseGeo extends BaseModule {
 
 	private String gseNumber = "GSE2109";
 
+	private boolean commit = false; 
+
 	// === Initialization ===
 	private Map <String, Set<String>> mapNotRecognized = new HashMap <String, Set<String>>();
 	private Map <String, Set<String>> mapRecognized = new HashMap <String, Set<String>>();
@@ -62,7 +64,7 @@ public class AnalyseGeo extends BaseModule {
 
 		MongoClient mongoClient = MongoUtil.buildMongoClient();
 		MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
-		
+
 		MongoCollection<Document> collection = db.getCollection("samples");
 		List<Document> listDocuments = collection
 				.find(Filters.eq("main_gse_number", gseNumber))
@@ -79,7 +81,8 @@ public class AnalyseGeo extends BaseModule {
 		// ===== Analyse ======
 
 
-		for (int i=0; i<listDocuments.size(); i++) {
+		// for (int i=0; i<listDocuments.size(); i++) {
+		for (int i=14; i<15; i++) {
 			Document doc = listDocuments.get(i);
 			Document expGroup = (Document) doc.get("exp_group");
 
@@ -110,7 +113,7 @@ public class AnalyseGeo extends BaseModule {
 
 
 			System.out.println("------------------------------------------------------------");
-			System.out.println(gsmNumber + " " + listEntries);
+			System.out.println(i + " " + gsmNumber + " " + listEntries);
 			System.out.println(ontologyService.toString());
 
 
@@ -119,14 +122,18 @@ public class AnalyseGeo extends BaseModule {
 
 			try {
 
+				/*
 				String [] categories = {"collection_method", "tissue_stage", "pathology", "tissue_status", 
 						"patient", "topology", "morphology", "survival", "tnm", "exposure", "biopatho"};
+				 */
+
+				String [] categories = {"treatment"};
 
 				// === Dispatcher ===
 				for (int j=0; j<categories.length; j++) {
+
 					dispatcherFactory.getObject(expGroup, mapOntologyObjects, categories[j]);
-					
-					
+
 					System.out.print(categories[j]);
 					if (expGroup.getString(categories[j])!=null) {
 						System.out.print(" " + expGroup.getString(categories[j]) + "\n");
@@ -134,15 +141,17 @@ public class AnalyseGeo extends BaseModule {
 					else {
 						System.out.print("\n");
 					}
-					
+
 				}
-				
+
 				System.out.println(expGroup);
 
 				// Update Mongo document
 				doc.put("exp_group", expGroup);
 				doc.put("analyzed", true);
-				UpdateResult updateResult = collection.updateOne(Filters.eq("_id", gsmNumber), new Document("$set", doc));
+				if (commit) {
+					UpdateResult updateResult = collection.updateOne(Filters.eq("_id", gsmNumber), new Document("$set", doc));
+				}
 
 
 			} catch (DispatcherException e) {

@@ -33,9 +33,7 @@ public class ClOntologyKeywordDao extends BaseDao {
 				.createCriteria(ClOntologyKeyword.class)
 				.list();
 		
-		// String query = "(select * from cl_ontology_keyword) union (select term as id_keyword, id_category from view_ontology_dictionary)";
-		
-		String query = "select term as id_keyword, id_category from epimed_prod.view_ontology_dictionary where character_length(term)>3";
+		String query = "select term as id_keyword, id_category, true as enabled from epimed_semantic.view_ontology_dictionary where character_length(term)>3";
 		
 		// System.out.println(query);
 		

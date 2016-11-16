@@ -25,28 +25,19 @@ public class MatcherExposure extends MatcherAbstract {
 		List<String> list = new ArrayList<String>();
 		Set<String> set = new HashSet<String>();
 
-		// ===== Guess from text =====
-
-		for (int l=0; l<listLines.size(); l++) {
-			String line = listLines.get(l).toLowerCase();
-
-			// Tobacco
-			boolean isSmoker = line.contains("smok") && 
-					(!line.contains("non smok") && !line.contains("non-smok") && !line.contains(": no"));
-
-			if (isSmoker) {
-				set.add("tobacco");
-			}
-		}
-
 
 		for (int l=0; l<listLines.size(); l++) {
 
 			String line = listLines.get(l);
+			
+			// System.out.println(line);
 
 			boolean isExposed = !line.toLowerCase().contains(": no") 
 					&& !line.toLowerCase().contains(": na")
-					&& !line.toLowerCase().contains(": nd");
+					&& !line.toLowerCase().contains(": nd")
+					&& !line.toLowerCase().contains(": negative")
+					&& !line.toLowerCase().contains(": non")
+					;
 
 			if (isExposed) {
 
