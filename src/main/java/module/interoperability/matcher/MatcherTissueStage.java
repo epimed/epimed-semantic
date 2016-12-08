@@ -35,7 +35,7 @@ public class MatcherTissueStage extends MatcherAbstract {
 		for (int l=0; l<listLines.size(); l++) {
 
 			String line = listLines.get(l);
-			System.out.println(line);
+			
 			List<ViewOntologyDictionary> listDictionaryTerms = findDictionaryMatches(line, "tissue_stage");
 
 			for (int i=0; i<listDictionaryTerms.size(); i++) {
@@ -79,6 +79,11 @@ public class MatcherTissueStage extends MatcherAbstract {
 		listId.addAll(setId);
 		Collections.sort(listId);		
 
+		if (listId.size()>1) {
+			listId.clear();
+			listId.add("1");
+		}
+		
 		for (int i=0; i<listId.size(); i++) {
 			list.add(tissueStageDao.find(Integer.parseInt(listId.get(i))));
 		}

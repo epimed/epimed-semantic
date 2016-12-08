@@ -23,11 +23,11 @@ public class DispatcherTissueStage extends DispatcherAbstract {
 	 * @throws DispatcherException */
 
 	public void create(Document doc, Map<String, List<Object>> mapOntologyObjects) throws DispatcherException {
-		
+
 		boolean isFound = false;
 		ClTissueStage tissueStage = (ClTissueStage) makeChoice(mapOntologyObjects, "tissue_stage");
 		isFound = !(tissueStage==null);
-		
+
 		if (!isFound) {
 			ClTissueStageDao tissueStageDao = new ClTissueStageDao(session);
 			List<ClTissueStage> listTissueStage = tissueStageDao.list();
@@ -36,13 +36,13 @@ public class DispatcherTissueStage extends DispatcherAbstract {
 				mapOntologyObjects.get("tissue_stage").add(listTissueStage.get(i));
 			}
 		}
-		
+
 
 		// ===== Try cell line if not found =====
 		if (!isFound) {
 			ClCellLine cellLine = (ClCellLine) makeChoice(mapOntologyObjects, "cell_line");
 			if (cellLine!=null) {
-				
+
 				if (cellLine.getHistologyType()!=null && cellLine.getHistologyType().contains("embr")) {
 					tissueStage = session.get(ClTissueStage.class, 4); // embryonic
 				}
@@ -56,14 +56,14 @@ public class DispatcherTissueStage extends DispatcherAbstract {
 			}
 		}
 		isFound = !(tissueStage==null);
-		
+
 		// ===== Default =====
 		if (!isFound) {
 			tissueStage = session.get(ClTissueStage.class, 1); // adult
 			// tissueStage = (ClTissueStage) makeChoice(mapOntologyObjects, "tissue_stage");
 		}
 		isFound = !(tissueStage==null);
-		
+
 		// === Exception ===
 		if (!isFound) {
 			throw new DispatcherException("Tissue stage doesn't exist in the database.");
@@ -73,7 +73,7 @@ public class DispatcherTissueStage extends DispatcherAbstract {
 			doc.put("id_tissue_stage", tissueStage.getIdTissueStage());
 			doc.put("tissue_stage", tissueStage.getStage());
 		}
-		
+
 	}
 
 	/** ================================================================================= */

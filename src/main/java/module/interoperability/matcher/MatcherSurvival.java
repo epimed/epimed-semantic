@@ -45,7 +45,16 @@ public class MatcherSurvival extends MatcherAbstract {
 				}	
 				
 			}
+			
+			// ===== Relapse =====
 
+			if (line.toLowerCase().contains("relapse")) {
+				if (value.toLowerCase().contains("yes")) {
+					survival.setRelapsed(true);
+					isFound = true;
+				}
+			}
+			
 
 			// ===== Overall survival ======
 			if (line.toLowerCase().contains("overall")) {
@@ -83,6 +92,8 @@ public class MatcherSurvival extends MatcherAbstract {
 			list.add(survival);
 		}
 
+		// System.out.println(this.getClass().getName() + " " + list.toString());
+		
 		return list;
 	}
 	

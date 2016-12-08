@@ -35,6 +35,10 @@ public class MatcherFactory {
 
 		if (ontologyCategory!=null) {
 			
+			if (ontologyCategory.getIdCategory().equals("treatment")) {
+				return new MatcherTreatment(session, listLines);
+			}
+			
 			if (ontologyCategory.getIdCategory().equals("tnm")) {
 				return new MatcherTnm(session, listLines);
 			}

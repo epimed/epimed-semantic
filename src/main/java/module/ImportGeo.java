@@ -36,7 +36,7 @@ import static com.mongodb.client.model.Filters.*;
 public class ImportGeo {
 
 
-	private String [] listGseNumber = {"GSE30219"};
+	private String [] listGseNumber = {"GSE41169"};
 
 	/*
 	private String [] listGseNumber = {"GSE51032", "GSE10843", "GSE10846", "GSE30219", "GSE15431", "GSE3202", "GSE13309", 
@@ -54,21 +54,22 @@ public class ImportGeo {
 		// ===== Connection =====
 
 		MongoClient mongoClient = MongoUtil.buildMongoClient();
-		// MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
-		MongoDatabase db = mongoClient.getDatabase("geo");
+		MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
+		// MongoDatabase db = mongoClient.getDatabase("geo");
 		
 		// ===== Insert data =====
 
 		for (int k=0; k<listGseNumber.length; k++) {
+		
 
 			String gseNumber = listGseNumber[k];
 
 			System.out.println("------------------------------------------");
-			System.out.println("Import " + gseNumber);
+			System.out.println(k + " Import " + gseNumber);
 
 			// ===== Load GSE =====
 			NcbiGeoGse gse = new NcbiGeoGse(webService.loadGeo(gseNumber));	
-
+			System.out.println(gse);
 
 			// ===== Series =====
 			MongoCollection<Document> collectionSeries = db.getCollection("series");
@@ -133,10 +134,10 @@ public class ImportGeo {
 				
 				if (docAlreadyExist) {
 					analysed = (Boolean) docSampleExist.get("analyzed");
-					System.out.println("\t " + gsm.getGsmNumber() + ":  already exists in the database, analyzed=" + analysed);
+					System.out.println(i + "/" + gse.getListGsm().size() + "\t " + gsm.getGsmNumber() + ":  already exists in the database, analyzed=" + analysed);
 				}
 				else {
-					System.out.println("\t " + gsm.getGsmNumber());
+					System.out.println(i + "/" + gse.getListGsm().size() + "\t " + gsm.getGsmNumber());
 				}
 				
 				// ===== Sample Document =====
@@ -273,6 +274,10 @@ public class ImportGeo {
 						}
 					}
 					value = value.trim();
+					String existingValue = doc.getString(key);
+					if (existingValue!=null && !existingValue.isEmpty()) {
+						value = existingValue + ", " + value;
+					}
 					doc.append(key, value);
 				}
 			}

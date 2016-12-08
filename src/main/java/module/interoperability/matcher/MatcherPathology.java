@@ -27,7 +27,16 @@ public class MatcherPathology extends MatcherAbstract {
 		for (int l=0; l<listLines.size(); l++) {
 
 			String line = listLines.get(l);
-			List<ViewOntologyDictionary> listDictionaryTerms = findDictionaryMatches(line, "pathology");;
+			
+			if (line.contains(":")) {
+				line = line.split(":")[1].trim();
+				
+				if (line.contains("yes")) {
+					line = listLines.get(l);
+				}				
+			}
+
+			List<ViewOntologyDictionary> listDictionaryTerms = findDictionaryMatches(line, "pathology");
 
 			// For matched terms, search corresponding topologies
 			for (int i=0; i<listDictionaryTerms.size(); i++) {

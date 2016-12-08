@@ -36,6 +36,10 @@ public class DispatcherFactory {
 
 		if (objectType!=null) {
 
+			if (objectType.equals("treatment")) {
+				(new DispatcherTreatment(session)).create(doc, mapOntologyObjects);
+			}
+			
 			if (objectType.equals("biopatho")) {
 				(new DispatcherBiopatho(session)).create(doc, mapOntologyObjects);
 			}

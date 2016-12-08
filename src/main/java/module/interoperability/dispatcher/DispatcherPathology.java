@@ -72,8 +72,10 @@ public class DispatcherPathology extends DispatcherAbstract {
 		}
 
 		if (pathology!=null) {
+			doc.put("id_pathology", pathology.getIdPathology());
 			doc.put("pathology", pathology.getName());
 		}
+		
 	}
 
 	/** ================================================================================= */

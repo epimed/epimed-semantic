@@ -6,13 +6,13 @@ import org.hibernate.criterion.Restrictions;
 import model.entity.ClTreatmentMethod;
 
 
-public class ClTreatementMethodDao extends BaseDao {
+public class ClTreatmentMethodDao extends BaseDao {
 
-	public ClTreatementMethodDao(Session session) {
+	public ClTreatmentMethodDao(Session session) {
 		super(session);
 	}
 
-	public ClTreatmentMethod find(Integer id) {
+	public ClTreatmentMethod findById(Integer id) {
 		ClTreatmentMethod result = (ClTreatmentMethod) session
 				.createCriteria(ClTreatmentMethod.class)
 				.add(Restrictions.eq("idTreatmentMethod", id) )
@@ -20,7 +20,7 @@ public class ClTreatementMethodDao extends BaseDao {
 		return result;
 	}
 	
-	public ClTreatmentMethod find(String name) {
+	public ClTreatmentMethod findByName(String name) {
 		ClTreatmentMethod result = (ClTreatmentMethod) session
 				.createCriteria(ClTreatmentMethod.class)
 				.add(Restrictions.eq("name", name) )

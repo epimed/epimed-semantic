@@ -42,10 +42,15 @@ import service.OntologyService;
 public class AnalyseGeo extends BaseModule {
 
 
-	private String gseNumber = "GSE2109";
+	private String gseNumber = "GSE41169";
 
-	private boolean commit = false; 
-
+	private boolean commit = true;
+	
+	// === Categories to update ===
+	// private String [] categories = {"treatment"};
+	private String [] categories = {"pathology", "collection_method", "patient", "topology", "morphology", "biopatho", "tissue_stage", "tissue_status",
+			"survival", "tnm", "exposure", "treatment"};
+	
 	// === Initialization ===
 	private Map <String, Set<String>> mapNotRecognized = new HashMap <String, Set<String>>();
 	private Map <String, Set<String>> mapRecognized = new HashMap <String, Set<String>>();
@@ -81,8 +86,8 @@ public class AnalyseGeo extends BaseModule {
 		// ===== Analyse ======
 
 
-		// for (int i=0; i<listDocuments.size(); i++) {
-		for (int i=14; i<15; i++) {
+		for (int i=0; i<listDocuments.size(); i++) {
+		// for (int i=0; i<1; i++) {
 			Document doc = listDocuments.get(i);
 			Document expGroup = (Document) doc.get("exp_group");
 
@@ -122,13 +127,7 @@ public class AnalyseGeo extends BaseModule {
 
 			try {
 
-				/*
-				String [] categories = {"collection_method", "tissue_stage", "pathology", "tissue_status", 
-						"patient", "topology", "morphology", "survival", "tnm", "exposure", "biopatho"};
-				 */
-
-				String [] categories = {"treatment"};
-
+				
 				// === Dispatcher ===
 				for (int j=0; j<categories.length; j++) {
 

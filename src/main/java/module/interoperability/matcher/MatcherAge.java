@@ -1,6 +1,7 @@
 package module.interoperability.matcher;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -53,13 +54,26 @@ public class MatcherAge extends MatcherAbstract {
 
 				String line = listLines.get(l);
 				String value = this.extractValue(listLines.get(l));
+				
 
 				if (value!=null) {
 					Matcher matcher = pattern.matcher(value);
 					boolean isPatternFound= matcher.find();
 					if (isPatternFound) {
+						
 						String ageString =  matcher.group();
+						
+						// === Minus : two possibilities : two positive ages or one negative age 
+						
 						String[] ageParts = ageString.split("-"); // possibly 2 ages: ageMin-ageMax
+						
+						
+						if (ageParts.length>1 && (ageParts[0]==null || ageParts[0].isEmpty())) {
+							ageParts = new String[1];
+							ageParts[0] = value;
+						}
+						
+						
 						for (int j=0; j<ageParts.length; j++) {
 							try {
 								Double number = Double.parseDouble(ageParts[j]);

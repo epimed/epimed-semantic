@@ -42,6 +42,7 @@ public abstract class DispatcherAbstract {
 	
 	/** ================================================================================= */
 	
+	@SuppressWarnings("resource")
 	public Object makeChoice(Map <String, List<Object>> mapOntologyObjects, String category) {
 		
 		List<Object> list = mapOntologyObjects.get(category);
@@ -81,6 +82,7 @@ public abstract class DispatcherAbstract {
 					System.exit(0);
 				}
 				
+				keyboard.close();
 				
 			}
 		}

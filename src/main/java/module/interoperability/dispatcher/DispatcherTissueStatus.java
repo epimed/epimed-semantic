@@ -58,6 +58,8 @@ public class DispatcherTissueStatus extends DispatcherAbstract {
 		}
 		isFound = !(tissueStatus==null);
 		
+
+		
 		// ===== NORMAL by default =====
 		if (!isFound) {
 			// Normal by default
@@ -66,12 +68,21 @@ public class DispatcherTissueStatus extends DispatcherAbstract {
 
 			// throw new DispatcherException("Tissue status doesn't exist in the database.");
 		}
+		
 
+		// ==== NORMAL / pathology ====
 		if (tissueStatus!=null) {
 			doc.put("id_tissue_status", tissueStatus.getIdTissueStatus());
 			doc.put("tissue_status", tissueStatus.getName());
+			
+			if (tissueStatus.getIdTissueStatus().equals(1)) {
+				// If normal, then the pathology is null
+				doc.put("id_pathology", null);
+				doc.put("pathology", null);
+			}
 		}
 
+		
 	}
 
 	/** ================================================================================= */
