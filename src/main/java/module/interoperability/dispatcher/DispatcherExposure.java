@@ -26,6 +26,9 @@ public class DispatcherExposure extends DispatcherAbstract {
 		if (list!=null && !list.isEmpty()) {
 			doc.put("exposure", list.toString().replaceAll("[\\[\\]]", ""));
 		}
+		else {
+			doc.put("exposure", null);
+		}
 
 	}
 }

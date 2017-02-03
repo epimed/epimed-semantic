@@ -27,7 +27,7 @@ public class MatcherCellLine extends MatcherAbstract {
 	}
 
 	public List<ClCellLine> match() {
-
+		// System.out.println("=== " + this.getClass().getName() + " ===");
 
 
 		List<ClCellLine> list = new ArrayList<ClCellLine>();
@@ -64,6 +64,8 @@ public class MatcherCellLine extends MatcherAbstract {
 			String nameCellLine = iter.next();
 			List<ViewOntologyDictionary> listDictionaryTerms = findDictionaryMatches(getCellLineCode(nameCellLine), "cell_line");
 
+			// System.out.println("\t --> listDictionaryTerms: " + listDictionaryTerms);
+			
 			for (int i=0; i<listDictionaryTerms.size(); i++) {
 				String id = listDictionaryTerms.get(i).getId().getIdReference();
 				setId.add(id);
@@ -99,7 +101,8 @@ public class MatcherCellLine extends MatcherAbstract {
 
 
 	public String getCellLineCode(String name) {
-		return name.replaceAll("\\p{Punct}", "").replaceAll("\\p{Space}", "").toLowerCase();
+		String result  = name.replaceAll("\\p{Punct}", "").replaceAll("\\p{Space}", "").toLowerCase();
+		return result = result.substring(0, Math.min(result.length(), 20));
 	}
 
 }

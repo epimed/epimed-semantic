@@ -41,16 +41,16 @@ import service.OntologyService;
 
 public class AnalyseGeo extends BaseModule {
 
+	private String gseNumber = "GSE5060";
 
-	private String gseNumber = "GSE41169";
 
 	private boolean commit = true;
-	
+
 	// === Categories to update ===
 	// private String [] categories = {"treatment"};
 	private String [] categories = {"pathology", "collection_method", "patient", "topology", "morphology", "biopatho", "tissue_stage", "tissue_status",
 			"survival", "tnm", "exposure", "treatment"};
-	
+
 	// === Initialization ===
 	private Map <String, Set<String>> mapNotRecognized = new HashMap <String, Set<String>>();
 	private Map <String, Set<String>> mapRecognized = new HashMap <String, Set<String>>();
@@ -72,8 +72,8 @@ public class AnalyseGeo extends BaseModule {
 
 		MongoCollection<Document> collection = db.getCollection("samples");
 		List<Document> listDocuments = collection
-				.find(Filters.eq("main_gse_number", gseNumber))
-				// .projection(Projections.fields(Projections.include("exp_group"), Projections.excludeId()))
+				// .find(Filters.in("series", gseNumber))
+				.find(Filters.and(Filters.in("series", gseNumber), Filters.eq("analyzed", false)))
 				.into(new ArrayList<Document>());
 
 
@@ -87,7 +87,7 @@ public class AnalyseGeo extends BaseModule {
 
 
 		for (int i=0; i<listDocuments.size(); i++) {
-		// for (int i=0; i<1; i++) {
+		// for (int i=20; i<21; i++) {
 			Document doc = listDocuments.get(i);
 			Document expGroup = (Document) doc.get("exp_group");
 
@@ -111,6 +111,8 @@ public class AnalyseGeo extends BaseModule {
 				listEntries.add(parameters.get(j) + ": " + mapParameters.get(parameters.get(j)));
 			}
 
+			// === Clear already filled fields (only if necessary) ===
+			// this.clear(expGroup);
 
 			Map <String, List<Object>> mapOntologyObjects = ontologyService.recognizeOntologyObjects(listEntries);
 			// Map <ClOntologyCategory, Set<String>> mapOntologyCategories = ontologyService.getMapOntologyCategories();
@@ -121,13 +123,12 @@ public class AnalyseGeo extends BaseModule {
 			System.out.println(i + " " + gsmNumber + " " + listEntries);
 			System.out.println(ontologyService.toString());
 
-
 			// ===== Create mapping objects and making links =====
 
 
 			try {
 
-				
+
 				// === Dispatcher ===
 				for (int j=0; j<categories.length; j++) {
 
@@ -228,7 +229,7 @@ public class AnalyseGeo extends BaseModule {
 	/** ====================================================================================== */
 
 	private void addToMap(Map <String, Set<String>> map, String category, String text) {
-		if (map.get(category) == null) {
+		if (map.get(category) == null); {
 			map.put(category, new HashSet<String>());
 		}
 		map.get(category).add(text);
@@ -265,6 +266,33 @@ public class AnalyseGeo extends BaseModule {
 		return listSplittedEntries;
 	}
 
+
+	/** =============================================================== */
+
+	private void clear(Document doc) {
+		doc.put("id_pathology", null);
+		doc.put("pathology", null);
+		doc.put("collection_method", null);
+		doc.put("id_topology", null);
+		doc.put("topology", null);
+		doc.put("id_topology_group", null);
+		doc.put("topology_group", null);
+		doc.put("id_morphology", null);
+		doc.put("morphology", null);
+		doc.put("histology_type", null);
+		doc.put("histology_subtype", null);
+		doc.put("t", null);
+		doc.put("n", null);
+		doc.put("m", null);
+		doc.put("tnm_stage", null);
+		doc.put("tnm_grade", null);
+		doc.put("dfs_months", null);
+		doc.put("os_months", null);
+		doc.put("relapsed", null);
+		doc.put("dead", null);
+		doc.put("treatment", null);
+		doc.put("exposure", null);
+	}
 
 	/** =============================================================== */
 

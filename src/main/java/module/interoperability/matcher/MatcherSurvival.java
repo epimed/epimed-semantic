@@ -23,8 +23,8 @@ public class MatcherSurvival extends MatcherAbstract {
 		ClSurvival survival = new ClSurvival();
 
 
-
-		String patternText = "[0-9]+";
+		// String patternText = "[0-9]+";
+		String patternText = "[0-9]+[\\.]*[0-9]*";
 		Pattern pattern = Pattern.compile(patternText);
 
 
@@ -34,56 +34,21 @@ public class MatcherSurvival extends MatcherAbstract {
 			String value = this.extractValue(listLines.get(l));
 
 			// ===== Dead / Alive =====
-			if (line.toLowerCase().contains("dead") || line.toLowerCase().contains("alive")) {
-				
-				isFound = true;
-				if (value!=null && value.contains("1")) {
-					survival.setDead(true);
-				}
-				if (value!=null && value.contains("0")) {
-					survival.setDead(false);
-				}	
-				
-			}
-			
+			this.recognizeDeadAlive(line, value, isFound, survival);
+
+
 			// ===== Relapse =====
+			this.recognizeRelapse(line, value, isFound, survival);
 
-			if (line.toLowerCase().contains("relapse")) {
-				if (value.toLowerCase().contains("yes")) {
-					survival.setRelapsed(true);
-					isFound = true;
-				}
-			}
 			
-
-			// ===== Overall survival ======
-			if (line.toLowerCase().contains("overall")) {
-
+			// ===== Overall survival OS / disease free survival DFS ======
+			if (line.toLowerCase().contains("overall") || line.toLowerCase().contains("last_contact")) {
 				isFound = true;
-				
-				Matcher matcher = pattern.matcher(value);
-				boolean isPatternFound= matcher.find();
-				
-				if (isPatternFound) {
-					String osString =  matcher.group();
-					try {
-						Double number = Double.parseDouble(osString);
-						
-						// ==== Special cases =====
-						if (line.toLowerCase().contains("days")) {
-							// Conversion from days to months
-							Double numberofMonths = number / 30;
-							number = round(numberofMonths, 2);
-						}
-						
-						survival.setOsMonths(number);
-						
-					}
-					catch (NumberFormatException e) {
-						// nothing to do
-					}	
-				}
-
+				survival.setOsMonths(this.recognizePeriod(line, value, pattern));
+			}
+			if (line.toLowerCase().contains("free survival") || line.toLowerCase().contains("last_clinical")) {
+				isFound = true;
+				survival.setDfsMonths(this.recognizePeriod(line, value, pattern));
 			}
 
 		}
@@ -93,8 +58,96 @@ public class MatcherSurvival extends MatcherAbstract {
 		}
 
 		// System.out.println(this.getClass().getName() + " " + list.toString());
-		
+
 		return list;
 	}
-	
+
+	/** ==================================================================================================== */
+
+	private boolean recognizeDeadAlive(String line, String value, boolean isFound, ClSurvival survival) {
+
+		if (line.toLowerCase().contains("dead") 
+				|| line.toLowerCase().contains("deceased") 
+				|| line.toLowerCase().contains("alive")) {
+
+			isFound = true;
+
+			if (value!=null && value.contains("1") || value.toLowerCase().contains("dead") || value.toLowerCase().contains("deceased")) {
+				survival.setDead(true);
+			}
+
+			if (value!=null && value.contains("0") || value.toLowerCase().contains("alive")) {
+				survival.setDead(false);
+			}	
+		}
+
+		return isFound;
+	}
+
+	/** ===================================================================================================== */
+
+	private boolean recognizeRelapse(String line, String value, boolean isFound, ClSurvival survival) {
+
+		if (line.toLowerCase().contains("relapse") || line.toLowerCase().contains("recurrence")) {
+		
+			if (value!=null && value.contains("1")) {
+				survival.setRelapsed(true);
+				isFound = true;
+			}
+			
+			if (value!=null && value.contains("0")) {
+				survival.setRelapsed(false);
+				isFound = true;
+			}
+			
+			if (value!=null && value.toLowerCase().contains("yes")) {
+				survival.setRelapsed(true);
+				isFound = true;
+			}
+			
+			if (value!=null && value.toLowerCase().contains("no")) {
+				survival.setRelapsed(false);
+				isFound = true;
+			}
+			
+		}
+		return isFound;
+
+	}
+
+	/** ===================================================================================================== */
+
+	private Double recognizePeriod(String line, String value, Pattern pattern) {
+
+		Double number = null;
+		
+		Matcher matcher = pattern.matcher(value);
+		boolean isPatternFound= matcher.find();
+
+		if (isPatternFound) {
+			String numberString =  matcher.group();
+			
+			// System.out.println("numberString=" + numberString);
+			
+			try {
+				number = Double.parseDouble(numberString);
+
+				// ==== Special cases =====
+				if (line.toLowerCase().contains("days")) {
+					// Conversion from days to months
+					Double numberofMonths = number / 30;
+					number = round(numberofMonths, 2);
+				}
+
+			}
+			catch (NumberFormatException e) {
+				// nothing to do
+			}	
+		}
+		
+		return number;
+
+	}
+
+
 }

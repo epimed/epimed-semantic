@@ -37,15 +37,18 @@ public class DispatcherTopology extends DispatcherAbstract {
 		}
 		isFound = !(topology==null);
 
-
+		
 		if (!isFound) {
-			throw new DispatcherException("Topology doesn't exist.");
+			displayMessage("WARNING! Topology doesn't exist.");
 		}
+		
 
-		doc.put("id_topology", topology.getIdTopology());
-		doc.put("topology", topology.getName());
-		doc.put("id_topology_group", topology.getClTopologyGroup().getIdGroup());
-		doc.put("topology_group", topology.getClTopologyGroup().getName());
+		if (isFound) {
+			doc.put("id_topology", topology.getIdTopology());
+			doc.put("topology", topology.getName());
+			doc.put("id_topology_group", topology.getClTopologyGroup().getIdGroup());
+			doc.put("topology_group", topology.getClTopologyGroup().getName());
+		}
 	}
 
 	/** ================================================================================= */

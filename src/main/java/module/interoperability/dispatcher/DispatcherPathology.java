@@ -40,7 +40,7 @@ public class DispatcherPathology extends DispatcherAbstract {
 
 			// === If tissue status is tumoral than pathology is CANCER ===
 			if (tissueStatus!=null && tissueStatus.getIdTissueStatus()>=3) {
-				pathology = session.get(ClPathology.class, 1); // Cancer
+				pathology = session.get(ClPathology.class, "C80.9"); // Cancer
 				isFound = true;
 			}
 		}
@@ -50,7 +50,7 @@ public class DispatcherPathology extends DispatcherAbstract {
 		if (!isFound) {
 			ClCellLine cellLine = (ClCellLine) makeChoice(mapOntologyObjects, "cell_line");
 			if (cellLine!=null && cellLine.getClMorphology()!=null) {
-				pathology = session.get(ClPathology.class, "1"); // Cancer
+				pathology = session.get(ClPathology.class, "C80.9"); // Cancer
 			}
 			isFound = !(pathology==null);
 		}
@@ -59,7 +59,7 @@ public class DispatcherPathology extends DispatcherAbstract {
 		if (!isFound) {
 			ClMorphology  morphology = (ClMorphology) makeChoice(mapOntologyObjects, "morphology");
 			if (morphology!=null) {
-				pathology = session.get(ClPathology.class, "1"); // Cancer
+				pathology = session.get(ClPathology.class, "C80.9"); // Cancer
 			}
 			isFound = !(pathology==null);
 		}

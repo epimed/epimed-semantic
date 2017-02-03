@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import org.hibernate.Session;
 
 import model.entity.ClCollectionMethod;
+import model.entity.ViewOntologyDictionary;
 
 
 public class MatcherCollectionMethod extends MatcherAbstract {
@@ -19,6 +20,8 @@ public class MatcherCollectionMethod extends MatcherAbstract {
 	}
 
 	public List<ClCollectionMethod> match() {
+
+		// System.out.println("=== " + this.getClass().getName() + " ===");
 
 		List<ClCollectionMethod> list = new ArrayList<ClCollectionMethod>();
 		Set<ClCollectionMethod> set = new HashSet<ClCollectionMethod>();
@@ -30,19 +33,19 @@ public class MatcherCollectionMethod extends MatcherAbstract {
 
 			for (int l=0; l<listLines.size(); l++) {
 
-
-				String value = this.extractValue(listLines.get(l));
+				String line = listLines.get(l);
+				String value = this.extractValue(line);
 
 				// ===== Xenograft  =====
 				if (value.toLowerCase().contains("xenograft")) {
 					set.add(session.get(ClCollectionMethod.class, "xenograft"));
 				}
-				
+
 				// ===== Embryonic stem cells ======
 				else if (value.toLowerCase().contains("embryonic stem cell")) {
 					set.add(session.get(ClCollectionMethod.class, "isolated cells"));
 				}
-				
+
 				else {
 
 					// ===== Cell line =====
@@ -64,7 +67,22 @@ public class MatcherCollectionMethod extends MatcherAbstract {
 							set.add(session.get(ClCollectionMethod.class, "isolated cells"));
 						}	
 					}
+
+					if (set.isEmpty()) {
+						// === Search for a particular cell in the dictionary ===
+						List<ViewOntologyDictionary> listDictionaryTerms = findDictionaryMatches(line, "collection_method");
+
+						// System.out.println("listDictionaryTerms " + listDictionaryTerms);
+						
+						// For matched terms, search corresponding id
+						for (int i=0; i<listDictionaryTerms.size(); i++) {
+							String idCollectionMethod = listDictionaryTerms.get(i).getId().getIdReference();
+							set.add(session.get(ClCollectionMethod.class, idCollectionMethod));
+						}
+					}
+
 				}
+
 			}
 		}
 

@@ -21,22 +21,23 @@ public class MatcherExposure extends MatcherAbstract {
 
 	public List<String> match() {
 
-
+		// System.out.println("=== " + this.getClass().getName() + " ===");
+		
 		List<String> list = new ArrayList<String>();
 		Set<String> set = new HashSet<String>();
 
 
 		for (int l=0; l<listLines.size(); l++) {
-
-			String line = listLines.get(l);
 			
-			// System.out.println(line);
+			String line = listLines.get(l);
 
 			boolean isExposed = !line.toLowerCase().contains(": no") 
 					&& !line.toLowerCase().contains(": na")
 					&& !line.toLowerCase().contains(": nd")
 					&& !line.toLowerCase().contains(": negative")
 					&& !line.toLowerCase().contains(": non")
+					&& !line.toLowerCase().contains(": not available")
+					&& !line.toLowerCase().contains("non-smoker")
 					;
 
 			if (isExposed) {
@@ -49,10 +50,11 @@ public class MatcherExposure extends MatcherAbstract {
 					set.add(id);
 				}
 			}
+			
 		}
 
 		list.addAll(set);
-
+		
 		return list;
 
 	}

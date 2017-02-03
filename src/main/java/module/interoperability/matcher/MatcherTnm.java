@@ -4,6 +4,8 @@ package module.interoperability.matcher;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.hibernate.Session;
 
@@ -17,47 +19,50 @@ public class MatcherTnm extends MatcherAbstract {
 
 	public List<ClTnm> match() {
 
+		// System.out.println("=== " + this.getClass().getName() + " ===");
+
+
 		List<ClTnm> list = new ArrayList<ClTnm>();
 		ClTnm tnm = new ClTnm();
+
+
+		String patternText = "[TNM][0-9][a-z]*";
+		Pattern pattern = Pattern.compile(patternText);
+
 
 		for (int l=0; l<listLines.size(); l++) {
 
 			String line = listLines.get(l);
-			String value = this.extractValue(listLines.get(l));
+			String value = this.extractValue(line);
 
-			// ===== T =====
-			if (line.toLowerCase().contains(" t:")) {
-				tnm.setT(value);
+			Matcher matcher = pattern.matcher(line);
+			boolean isPatternFound= matcher.find();
+
+			while (isPatternFound) {
+				String part = matcher.group();
+
+				isPatternFound= matcher.find();
+
+				if (part.startsWith("T")) {
+					tnm.setT(part);
+				}
+				if (part.contains("N")) {
+					tnm.setN(part);
+				}
+				if (part.startsWith("M")) {
+					tnm.setM(part);
+				}
 			}
-
-			// ===== N =====
-			if (line.toLowerCase().contains(" n:")) {
-				tnm.setN(value);
-			}
-
-			// ===== M =====
-			if (line.toLowerCase().contains(" m:")) {
-				tnm.setM(value);
-			}
-
-			// ===== Stage =====
-			if (line.toLowerCase().contains("stage:")) {
+			
+			if (line.toLowerCase().contains("stage:") && value.toLowerCase()!=null && !value.toLowerCase().contains("n/a")) {
 				tnm.setStage(value);
 			}
 
-			// ===== Grade =====
-			if (line.toLowerCase().contains("grade:")) {
-				tnm.setGrade(value);
-			}
 		}
 
 		list.add(tnm);
 
 		return list;
+
 	}
-
-
-
-	/** ================================================================================= */
-
 }

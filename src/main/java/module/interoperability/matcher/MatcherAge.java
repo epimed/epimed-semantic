@@ -1,7 +1,6 @@
 package module.interoperability.matcher;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -21,25 +20,26 @@ public class MatcherAge extends MatcherAbstract {
 
 		List<Double> list = new ArrayList<Double>();
 		Set<Double> set = new HashSet<Double>();
-		
+
 		List<String> listAgeLines =  new ArrayList<String>();
-		
+
 		// ===== Check if the category correspond to 'age' (not  'stage' or 'passage') ===== 
 
 		// System.out.println("listLines = " + listLines);
-		
+
 		for (int l=0; l<listLines.size(); l++) {
 			String line = listLines.get(l).toLowerCase();
-			boolean isAge = line.startsWith("age") || line.contains(" age ") ||  line.contains(" age:") || line.endsWith(" age");
+			boolean isAge = line.startsWith("age") || line.contains(" age ") ||  line.contains(" age:") 
+					|| line.endsWith(" age") || line.contains("dpc") || line.contains("old");
 			// System.out.println("line = " + line + ", isAge = " + isAge);
 			if (isAge) {
 				listAgeLines.add(line);
 			}
 		}
-		
+
 		listLines.clear();
 		listLines.addAll(listAgeLines);
-		
+
 		// System.out.println("listLines = " + listLines);
 
 		// ===== Try to recognize age =====
@@ -54,26 +54,25 @@ public class MatcherAge extends MatcherAbstract {
 
 				String line = listLines.get(l);
 				String value = this.extractValue(listLines.get(l));
-				
 
 				if (value!=null) {
 					Matcher matcher = pattern.matcher(value);
 					boolean isPatternFound= matcher.find();
 					if (isPatternFound) {
-						
+
 						String ageString =  matcher.group();
-						
+
 						// === Minus : two possibilities : two positive ages or one negative age 
-						
+
 						String[] ageParts = ageString.split("-"); // possibly 2 ages: ageMin-ageMax
-						
-						
+
+
 						if (ageParts.length>1 && (ageParts[0]==null || ageParts[0].isEmpty())) {
 							ageParts = new String[1];
 							ageParts[0] = value;
 						}
-						
-						
+
+
 						for (int j=0; j<ageParts.length; j++) {
 							try {
 								Double number = Double.parseDouble(ageParts[j]);
@@ -92,7 +91,7 @@ public class MatcherAge extends MatcherAbstract {
 									Double numberOfYears = number/numberOfMOnthsInAYear;
 									number = round(numberOfYears, 2);
 								}
-								if (line.toLowerCase().contains("day")) {
+								if (line.toLowerCase().contains("day") || line.toLowerCase().contains("dpc")) {
 									// Conversion from weeks to years
 									Double numberOfDaysInAYear = 365.0;
 									Double numberOfYears = number/numberOfDaysInAYear;
@@ -110,12 +109,10 @@ public class MatcherAge extends MatcherAbstract {
 			}
 		}
 
-
-
 		list.addAll(set);
 
 		Collections.sort(list);
-		
+
 		return list;
 	}
 

@@ -36,16 +36,8 @@ import static com.mongodb.client.model.Filters.*;
 public class ImportGeo {
 
 
-	private String [] listGseNumber = {"GSE41169"};
+	private String [] listGseNumber = {"GSE30219"};
 
-	/*
-	private String [] listGseNumber = {"GSE51032", "GSE10843", "GSE10846", "GSE30219", "GSE15431", "GSE3202", "GSE13309", 
-			"GSE14315", "GSE6013", "GSE3526", "GSE10890", "GSE8045", "GSE11092", "GSE9031", "GSE4824", "GSE9119", "GSE15240", 
-			"GSE9440", "GSE17708", "GSE9984", "GSE3156", "GSE18809", "GSE12417", "GSE12662", "GSE25219", "GSE19735", "GSE6400", 
-			"GSE6872", "GSE7434", "GSE5816", "GSE5823", "GSE3744", "GSE6891", "GSE11877", "GSE7440", "GSE13159", "GSE34861", "GSE2109"};
-	*/
-	
-	
 	private WebService webService = new WebService();
 	private Date today = new Date();
 
@@ -56,11 +48,11 @@ public class ImportGeo {
 		MongoClient mongoClient = MongoUtil.buildMongoClient();
 		MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
 		// MongoDatabase db = mongoClient.getDatabase("geo");
-		
+
 		// ===== Insert data =====
 
 		for (int k=0; k<listGseNumber.length; k++) {
-		
+
 
 			String gseNumber = listGseNumber[k];
 
@@ -126,22 +118,22 @@ public class ImportGeo {
 			for (int i=0; i<gse.getListGsm().size(); i++) {
 
 				NcbiGeoGsm gsm = new NcbiGeoGsm(webService.loadGeo(gse.getListGsm().get(i)));
-				
+
 				Document docSampleExist = collectionSamples.find(Filters.eq("_id", gsm.getGsmNumber())).first();
 				boolean docAlreadyExist = docSampleExist!=null;
-				
+
 				boolean analysed = false;
-				
+
 				if (docAlreadyExist) {
 					analysed = (Boolean) docSampleExist.get("analyzed");
-					System.out.println(i + "/" + gse.getListGsm().size() + "\t " + gsm.getGsmNumber() + ":  already exists in the database, analyzed=" + analysed);
+					System.out.println(i + "/" + gse.getListGsm().size() + "\t " + gse.getGseNumber() + "\t " + gsm.getGsmNumber() + ":  already exists in the database, analyzed=" + analysed);
 				}
 				else {
-					System.out.println(i + "/" + gse.getListGsm().size() + "\t " + gsm.getGsmNumber());
+					System.out.println(i + "/" + gse.getListGsm().size() + "\t " +  gse.getGseNumber() + "\t " + gsm.getGsmNumber());
 				}
-				
+
 				// ===== Sample Document =====
-				
+
 				Document docSample = new Document();
 
 				docSample
@@ -156,9 +148,9 @@ public class ImportGeo {
 				;
 
 				// ===== Mandatory parameters =====
-				
+
 				// Preserve "exp_group" if the document exists already
-				
+
 				Document expGroup = null;
 				if (docAlreadyExist) {
 					expGroup = (Document) docSampleExist.get("exp_group");
@@ -172,11 +164,11 @@ public class ImportGeo {
 
 				Document parameters = generateParameters(gsm);
 				docSample.append("parameters", parameters);
-				
-				
+
+
 				// === Delete if already exist ===
 				collectionSamples.deleteOne(eq("_id", gsm.getGsmNumber()));
-				
+
 				// ===== Insert data =====
 				collectionSamples.insertOne(docSample);
 
@@ -256,34 +248,42 @@ public class ImportGeo {
 		String regex = "[:=]";
 		List<String> listText = new ArrayList<String>();
 
-		for (String line : list) {
-			if (line.contains(":") || line.contains("=")) {
+		for (String rawLine : list) {
 
-				String [] parts = line.split(regex);
+			String [] lines = rawLine.split("[,;]"); // Split into several entries
 
-				if (parts!=null && parts.length>1) {
-					
-					String key = parts[0].trim();
-					key = key.replaceAll("\\.", " ");
-					String value = "";
-					
-					for (int i=1; i<parts.length; i++) {
-						value = value + parts[i].trim();
-						if (i!=parts.length-1) {
-							value =value  + ": ";
+			for (String line : lines) {
+
+				line = line.trim();
+				
+				if (line.contains(":") || line.contains("=")) {
+
+					String [] parts = line.split(regex);
+
+					if (parts!=null && parts.length>1) {
+
+						String key = parts[0].trim();
+						key = key.replaceAll("\\.", " ");
+						String value = "";
+
+						for (int i=1; i<parts.length; i++) {
+							value = value + parts[i].trim();
+							if (i!=parts.length-1) {
+								value =value  + ": ";
+							}
 						}
+						value = value.trim();
+						String existingValue = doc.getString(key);
+						if (existingValue!=null && !existingValue.isEmpty()) {
+							value = existingValue + ", " + value;
+						}
+						doc.append(key, value);
 					}
-					value = value.trim();
-					String existingValue = doc.getString(key);
-					if (existingValue!=null && !existingValue.isEmpty()) {
-						value = existingValue + ", " + value;
-					}
-					doc.append(key, value);
 				}
-			}
 
-			else {
-				listText.add(line);
+				else {
+					listText.add(line);
+				}
 			}
 		}
 
