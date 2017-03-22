@@ -1,10 +1,13 @@
 package dao;
 
+import javax.persistence.NoResultException;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import model.entity.ClPathology;
-
 
 
 public class ClPathologyDao extends BaseDao {
@@ -13,19 +16,35 @@ public class ClPathologyDao extends BaseDao {
 		super(session);
 	}
 
+	/** ============================================================ */
+
 	public ClPathology find(Integer id) {
-		ClPathology result = (ClPathology) session
-				.createCriteria(ClPathology.class)
-				.add(Restrictions.eq("idPathology", id))
-				.uniqueResult();
-		return result;
+		try {
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<ClPathology> criteria = builder.createQuery(ClPathology.class);
+			Root<ClPathology> root = criteria.from(ClPathology.class);
+			criteria.select(root).where(builder.equal(root.get("idPathology"), id));
+			return session.createQuery(criteria).getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}
 	}
-	
+
+	/** ============================================================ */
+
 	public ClPathology find(String name) {
-		ClPathology result = (ClPathology) session
-				.createCriteria(ClPathology.class)
-				.add(Restrictions.eq("name",  name))
-				.uniqueResult();
-		return result;
+		try {
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<ClPathology> criteria = builder.createQuery(ClPathology.class);
+			Root<ClPathology> root = criteria.from(ClPathology.class);
+			criteria.select(root).where(builder.equal(root.get("name"), name));
+			return session.createQuery(criteria).getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}
 	}
+
+	/** ============================================================ */
 }

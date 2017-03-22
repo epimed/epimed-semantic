@@ -13,14 +13,14 @@
   <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.8</jdk.version>
-		<psql.version>9.4.1208</psql.version>
-		<hibernate.version>5.1.0.Final</hibernate.version>
-		<poi.version>3.14</poi.version>
+		<psql.version>9.4.1212</psql.version>
+		<hibernate.version>5.2.6.Final</hibernate.version>
+		<poi.version>3.15</poi.version>
 		<jdom.version>2.0.2</jdom.version>
-		<joda.version>2.9.3</joda.version>
+		<joda.version>2.9.7</joda.version>
 		<jackson.version>2.7.3</jackson.version>
 		<opencsv.version>2.3</opencsv.version>
-		<mongo.version>3.4.0-rc1</mongo.version>
+		<mongo.version>3.4.2</mongo.version>
 	</properties>
 
 <dependencies>

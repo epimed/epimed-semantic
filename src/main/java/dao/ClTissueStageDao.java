@@ -2,46 +2,61 @@ package dao;
 
 import java.util.List;
 
+import javax.persistence.NoResultException;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import model.entity.ClTissueStage;
 
 
-@SuppressWarnings("unchecked")
 public class ClTissueStageDao extends BaseDao {
 
 	public ClTissueStageDao(Session session) {
 		super(session);
 	}
-	
+
 	/** ==================================================================== */
 	public List<ClTissueStage> list() {
-		List<ClTissueStage> result = session
-				.createCriteria(ClTissueStage.class)
-				.list();
-		return result;
+
+		CriteriaBuilder builder = session.getCriteriaBuilder();
+		CriteriaQuery<ClTissueStage> criteria = builder.createQuery(ClTissueStage.class);
+		Root<ClTissueStage> root = criteria.from(ClTissueStage.class);
+		criteria.select(root);
+		return session.createQuery(criteria).getResultList();
 	}
-	
+
 	/** ==================================================================== */
 
 	public ClTissueStage find(Integer id) {
-		ClTissueStage result = (ClTissueStage) session
-				.createCriteria(ClTissueStage.class)
-				.add(Restrictions.eq("idTissueStage", id) )
-				.uniqueResult();
-		return result;
+		try {
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<ClTissueStage> criteria = builder.createQuery(ClTissueStage.class);
+			Root<ClTissueStage> root = criteria.from(ClTissueStage.class);
+			criteria.select(root).where(builder.equal(root.get("idTissueStage"), id));
+			return session.createQuery(criteria).getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}
 	}
-	
+
 	/** ==================================================================== */
-	
+
 	public ClTissueStage find(String stage) {
-		ClTissueStage result = (ClTissueStage) session
-				.createCriteria(ClTissueStage.class)
-				.add(Restrictions.eq("stage", stage) )
-				.uniqueResult();
-		return result;
+		try {
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<ClTissueStage> criteria = builder.createQuery(ClTissueStage.class);
+			Root<ClTissueStage> root = criteria.from(ClTissueStage.class);
+			criteria.select(root).where(builder.equal(root.get("stage"), stage));
+			return session.createQuery(criteria).getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}
 	}
-	
+
 	/** ==================================================================== */
 }

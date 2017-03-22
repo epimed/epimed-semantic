@@ -1,10 +1,14 @@
 package dao;
 
+import javax.persistence.NoResultException;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
 import model.entity.ClTreatmentMethod;
-
 
 public class ClTreatmentMethodDao extends BaseDao {
 
@@ -12,14 +16,23 @@ public class ClTreatmentMethodDao extends BaseDao {
 		super(session);
 	}
 
+	/** ============================================================= */
+
 	public ClTreatmentMethod findById(Integer id) {
-		ClTreatmentMethod result = (ClTreatmentMethod) session
-				.createCriteria(ClTreatmentMethod.class)
-				.add(Restrictions.eq("idTreatmentMethod", id) )
-				.uniqueResult();
-		return result;
+		try {
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<ClTreatmentMethod> criteria = builder.createQuery(ClTreatmentMethod.class);
+			Root<ClTreatmentMethod> root = criteria.from(ClTreatmentMethod.class);
+			criteria.select(root).where(builder.equal(root.get("idTreatmentMethod"), id));
+			return session.createQuery(criteria).getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}
 	}
-	
+
+	/** ============================================================= */
+
 	public ClTreatmentMethod findByName(String name) {
 		ClTreatmentMethod result = (ClTreatmentMethod) session
 				.createCriteria(ClTreatmentMethod.class)
@@ -27,5 +40,7 @@ public class ClTreatmentMethodDao extends BaseDao {
 				.uniqueResult();
 		return result;
 	}
-	
+
+	/** ============================================================= */
+
 }

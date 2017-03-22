@@ -41,13 +41,12 @@ import service.OntologyService;
 
 public class AnalyseGeo extends BaseModule {
 
-	private String gseNumber = "GSE5060";
-
-
-	private boolean commit = true;
+	private String gseNumber = "GSE9014";
+	
+	private boolean commit = false;
 
 	// === Categories to update ===
-	// private String [] categories = {"treatment"};
+	// private String [] categories = {"tnm"};
 	private String [] categories = {"pathology", "collection_method", "patient", "topology", "morphology", "biopatho", "tissue_stage", "tissue_status",
 			"survival", "tnm", "exposure", "treatment"};
 
@@ -72,8 +71,8 @@ public class AnalyseGeo extends BaseModule {
 
 		MongoCollection<Document> collection = db.getCollection("samples");
 		List<Document> listDocuments = collection
-				// .find(Filters.in("series", gseNumber))
-				.find(Filters.and(Filters.in("series", gseNumber), Filters.eq("analyzed", false)))
+				.find(Filters.in("series", gseNumber))
+				// .find(Filters.and(Filters.in("series", gseNumber), Filters.eq("analyzed", false)))
 				.into(new ArrayList<Document>());
 
 
@@ -85,9 +84,8 @@ public class AnalyseGeo extends BaseModule {
 
 		// ===== Analyse ======
 
-
-		for (int i=0; i<listDocuments.size(); i++) {
-		// for (int i=20; i<21; i++) {
+		// for (int i=0; i<listDocuments.size(); i++) {
+		for (int i=0; i<1; i++) {
 			Document doc = listDocuments.get(i);
 			Document expGroup = (Document) doc.get("exp_group");
 
@@ -102,13 +100,13 @@ public class AnalyseGeo extends BaseModule {
 			listEntries.add(title);
 			listEntries.add(source);
 
-			Map<String, String> mapParameters = (Map<String, String>) doc.get("parameters");
+			Map<String, Object> mapParameters = (Map<String, Object>) doc.get("parameters");
 			parameters.addAll(mapParameters.keySet());
 			parameters.remove("id_sample");
 			parameters.remove("extract_protocol");
 
 			for (int j=0; j<parameters.size(); j++) {
-				listEntries.add(parameters.get(j) + ": " + mapParameters.get(parameters.get(j)));
+					listEntries.add(parameters.get(j) + ": " + mapParameters.get(parameters.get(j)));
 			}
 
 			// === Clear already filled fields (only if necessary) ===

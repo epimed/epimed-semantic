@@ -1,11 +1,13 @@
 package dao;
 
+import javax.persistence.NoResultException;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import model.entity.ClOntologyCategory;
-
-
 
 public class ClOntologyCategoryDao extends BaseDao {
 
@@ -16,10 +18,16 @@ public class ClOntologyCategoryDao extends BaseDao {
 	/** =================================================*/
 
 	public ClOntologyCategory find(String idCategory) {
-		return (ClOntologyCategory) session
-				.createCriteria(ClOntologyCategory.class)
-				.add(Restrictions.eq("idCategory", idCategory))
-				.uniqueResult();
+		try {
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<ClOntologyCategory> criteria = builder.createQuery(ClOntologyCategory.class);
+			Root<ClOntologyCategory> root = criteria.from(ClOntologyCategory.class);
+			criteria.select(root).where(builder.equal(root.get("idCategory"), idCategory));
+			return session.createQuery(criteria).getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}
 	}
 
 	/** =================================================*/

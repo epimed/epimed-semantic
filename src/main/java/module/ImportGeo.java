@@ -36,7 +36,7 @@ import static com.mongodb.client.model.Filters.*;
 public class ImportGeo {
 
 
-	private String [] listGseNumber = {"GSE30219"};
+	private String [] listGseNumber = {"GSE9014"};
 
 	private WebService webService = new WebService();
 	private Date today = new Date();

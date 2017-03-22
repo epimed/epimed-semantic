@@ -2,12 +2,14 @@ package dao;
 
 import java.util.List;
 
-import org.hibernate.Criteria;
+import javax.persistence.NoResultException;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import model.entity.ClMorphology;
-
 
 public class ClMorphologyDao extends BaseDao {
 
@@ -15,33 +17,39 @@ public class ClMorphologyDao extends BaseDao {
 		super(session);
 	}
 
-	
+
 	/** ========================================================= */
-	
+
 	public ClMorphology find(String id) {
-		ClMorphology result = (ClMorphology) session
-				.createCriteria(ClMorphology.class)
-				.add(Restrictions.eq("idMorphology", id) )
-				.uniqueResult();
-		return result;
+		try {		
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<ClMorphology> criteria = builder.createQuery(ClMorphology.class);
+			Root<ClMorphology> root = criteria.from(ClMorphology.class);
+			criteria.select(root).where(builder.equal(root.get("idMorphology"), id));
+			return session.createQuery(criteria).getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}
 	}
-	
-	
+
 	/** ========================================================= */
-	
-	@SuppressWarnings("unchecked")
+
 	public List<ClMorphology> listMorphologyWithSpecialCharacters() {
-		Criteria crit = session
-				.createCriteria(ClMorphology.class)
-				.add( Restrictions.or(
-						Restrictions.like("name", "%(%"),
-						Restrictions.like("name", "%[%")
-					));
-		
-		return crit.list();
+
+		CriteriaBuilder builder = session.getCriteriaBuilder();
+		CriteriaQuery<ClMorphology> criteria = builder.createQuery(ClMorphology.class);
+		Root<ClMorphology> root = criteria.from(ClMorphology.class);
+		criteria.select(root).where(
+				builder.or(
+						builder.like(root.get("name"), "%(%"),
+						builder.like(root.get("name"), "%[%")
+						)
+				);
+
+		return session.createQuery(criteria).getResultList();
 	}
-	
-	
+
 	/** ========================================================= */
-	
+
 }

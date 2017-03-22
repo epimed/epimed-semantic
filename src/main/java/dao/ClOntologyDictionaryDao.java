@@ -2,8 +2,11 @@ package dao;
 
 import java.util.List;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import model.entity.ClOntologyDictionary;
 import model.entity.ViewOntologyDictionary;
@@ -16,51 +19,59 @@ public class ClOntologyDictionaryDao extends BaseDao {
 
 	/** =================================================*/
 
-	@SuppressWarnings("unchecked")
+
 	public List<ClOntologyDictionary> list(String term, String idCategory) {
-		return session
-				.createCriteria(ClOntologyDictionary.class)
-				.add(Restrictions.eq("id.term", term))
-				.add(Restrictions.eq("clOntologyCategory.idCategory", idCategory))
-				.list();
+
+		CriteriaBuilder builder = session.getCriteriaBuilder();
+		CriteriaQuery<ClOntologyDictionary> criteria = builder.createQuery(ClOntologyDictionary.class);
+		Root<ClOntologyDictionary> root = criteria.from(ClOntologyDictionary.class);
+		criteria.select(root).where(
+				builder.and(
+						builder.equal(root.get("id").get("term"), term),
+						builder.equal(root.get("clOntologyCategory").get("idCategory"), idCategory)
+						)
+				);
+		return session.createQuery(criteria).getResultList();
 	}
 
 	/** =================================================*/
 
-	@SuppressWarnings("unchecked")
 	public List<ViewOntologyDictionary> listView (String[] terms, String idCategory) {
-		
-		
 
-		List<ViewOntologyDictionary> list =  session
-				.createCriteria(ViewOntologyDictionary.class)
-				.add(Restrictions.in("id.term", (Object[]) terms))
-				.add(Restrictions.eq("id.idCategory", idCategory))
-				.list();
+
+		CriteriaBuilder builder = session.getCriteriaBuilder();
+		CriteriaQuery<ViewOntologyDictionary> criteria = builder.createQuery(ViewOntologyDictionary.class);
+		Root<ViewOntologyDictionary> root = criteria.from(ViewOntologyDictionary.class);
+		criteria.select(root).where(
+				builder.and(
+						root.get("id").get("term").in((Object[])terms),
+						builder.equal(root.get("id").get("idCategory"), idCategory)
+						)
+				);
+		return session.createQuery(criteria).getResultList();
 
 		// System.out.println("category=" + idCategory + ", terms=" + Arrays.toString(terms));
 		// System.out.println("result=" + list);
 
-		return list;
 	}
 
 
 	/** =================================================*/
 
-	@SuppressWarnings("unchecked")
 	public List<ClOntologyDictionary> list(String[] terms, String idCategory) {
 
-
-		List<ClOntologyDictionary> list =  session
-				.createCriteria(ClOntologyDictionary.class)
-				.add(Restrictions.in("id.term", (Object[]) terms))
-				.add(Restrictions.eq("clOntologyCategory.idCategory", idCategory))
-				.list();
-
+		CriteriaBuilder builder = session.getCriteriaBuilder();
+		CriteriaQuery<ClOntologyDictionary> criteria = builder.createQuery(ClOntologyDictionary.class);
+		Root<ClOntologyDictionary> root = criteria.from(ClOntologyDictionary.class);
+		criteria.select(root).where(
+				builder.and(
+						root.get("id").get("term").in((Object[])terms),
+						builder.equal(root.get("clOntologyCategory").get("idCategory"), idCategory)
+						)
+				);
+		return session.createQuery(criteria).getResultList();
 
 		// System.out.println("result=" + list);
-
-		return list;
 	}
 
 	/** =================================================*/

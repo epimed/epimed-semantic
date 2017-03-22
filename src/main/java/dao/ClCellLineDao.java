@@ -2,12 +2,14 @@ package dao;
 
 import java.util.List;
 
+import javax.persistence.NoResultException;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import model.entity.ClCellLine;
-
-
 
 public class ClCellLineDao extends BaseDao {
 
@@ -18,35 +20,43 @@ public class ClCellLineDao extends BaseDao {
 	/** ==================================================================== */
 
 	public ClCellLine find(String idCellLine) {
-
-		return (ClCellLine) session
-				.createCriteria(ClCellLine.class)
-				.add(Restrictions.eq("idCellLine", idCellLine))
-				.uniqueResult();
-
+		try {
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<ClCellLine> criteria = builder.createQuery(ClCellLine.class);
+			Root<ClCellLine> root = criteria.from(ClCellLine.class);
+			criteria.select(root).where(builder.equal(root.get("idCellLine"), idCellLine));
+			return session.createQuery(criteria).getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}
 	}
 
 	/** ==================================================================== */
 
-	@SuppressWarnings("unchecked")
 	public List<ClCellLine> list() {
-		return session
-				.createCriteria(ClCellLine.class)
-				.list();
-
+		CriteriaBuilder builder = session.getCriteriaBuilder();
+		CriteriaQuery<ClCellLine> criteria = builder.createQuery(ClCellLine.class);
+		Root<ClCellLine> root = criteria.from(ClCellLine.class);
+		criteria.select(root);
+		return session.createQuery(criteria).getResultList();
 	}
 
 	/** ==================================================================== */
 
-	@SuppressWarnings("unchecked")
 	public List<ClCellLine> listUndefined() {
-		return session
-				.createCriteria(ClCellLine.class)
-				.add(Restrictions.or(
-						Restrictions.isNull("clMorphology.idMorphology"),
-						Restrictions.isNull("clTopology.idTopology")
-						))
-				.list();
+
+		CriteriaBuilder builder = session.getCriteriaBuilder();
+		CriteriaQuery<ClCellLine> criteria = builder.createQuery(ClCellLine.class);
+		Root<ClCellLine> root = criteria.from(ClCellLine.class);
+		criteria.select(root).where(
+				builder.or(
+						builder.isNull(root.get("clMorphology").get("idMorphology")),
+						builder.isNull(root.get("clTopology").get("idTopology"))
+						)
+				);
+
+		return session.createQuery(criteria).getResultList();
 
 	}
 
