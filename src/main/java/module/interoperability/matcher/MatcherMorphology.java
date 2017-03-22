@@ -42,8 +42,8 @@ public class MatcherMorphology extends MatcherAbstract {
 
 			// For matched terms, search corresponding morphologies
 			for (int i=0; i<listDictionaryTerms.size(); i++) {
-				String idMorphology = listDictionaryTerms.get(i).getId().getIdReference();
-				setId.add(idMorphology);
+					String idMorphology = listDictionaryTerms.get(i).getId().getIdReference();
+					setId.add(idMorphology);
 			}
 		}
 

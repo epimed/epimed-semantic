@@ -33,24 +33,31 @@ public class MatcherSurvival extends MatcherAbstract {
 			String line = listLines.get(l);
 			String value = this.extractValue(listLines.get(l));
 
+			// System.out.println("line=" + line + ", value=" + value);
+			
 			// ===== Dead / Alive =====
-			this.recognizeDeadAlive(line, value, isFound, survival);
-
-
+			boolean isFoundDeadAlive = this.recognizeDeadAlive(line, value, survival);
+			isFound = isFound || isFoundDeadAlive;
+			// System.out.println("Found dead/alive=" + isFoundDeadAlive);
+			
 			// ===== Relapse =====
-			this.recognizeRelapse(line, value, isFound, survival);
-
+			boolean isFoundRelapse = this.recognizeRelapse(line, value, survival);
+			isFound = isFound || isFoundRelapse;
 			
 			// ===== Overall survival OS / disease free survival DFS ======
-			if (line.toLowerCase().contains("overall") || line.toLowerCase().contains("last_contact")) {
+			if (line.toLowerCase().contains("overall") 
+					|| line.toLowerCase().contains("last_contact") 
+					|| line.toLowerCase().contains("fu time")) {
 				isFound = true;
 				survival.setOsMonths(this.recognizePeriod(line, value, pattern));
 			}
-			if (line.toLowerCase().contains("free survival") || line.toLowerCase().contains("last_clinical")) {
+			if (line.toLowerCase().contains("free survival") 
+					|| line.toLowerCase().contains("last_clinical")
+					|| line.toLowerCase().contains("dfs time")) {
 				isFound = true;
 				survival.setDfsMonths(this.recognizePeriod(line, value, pattern));
 			}
-
+			
 		}
 
 		if (isFound && !survival.isEmptySurvival()) {
@@ -64,19 +71,22 @@ public class MatcherSurvival extends MatcherAbstract {
 
 	/** ==================================================================================================== */
 
-	private boolean recognizeDeadAlive(String line, String value, boolean isFound, ClSurvival survival) {
+	private boolean recognizeDeadAlive(String line, String value, ClSurvival survival) {
+
+		boolean isFound = false;
 
 		if (line.toLowerCase().contains("dead") 
 				|| line.toLowerCase().contains("deceased") 
 				|| line.toLowerCase().contains("alive")) {
 
 			isFound = true;
-
-			if (value!=null && value.contains("1") || value.toLowerCase().contains("dead") || value.toLowerCase().contains("deceased")) {
+			
+			if (value!=null && (value.contains("1") || value.toLowerCase().contains("dead") 
+					|| value.toLowerCase().contains("deceased"))) {
 				survival.setDead(true);
 			}
 
-			if (value!=null && value.contains("0") || value.toLowerCase().contains("alive")) {
+			if (value!=null && (value.contains("0") || value.toLowerCase().contains("alive"))) {
 				survival.setDead(false);
 			}	
 		}
@@ -86,9 +96,13 @@ public class MatcherSurvival extends MatcherAbstract {
 
 	/** ===================================================================================================== */
 
-	private boolean recognizeRelapse(String line, String value, boolean isFound, ClSurvival survival) {
+	private boolean recognizeRelapse(String line, String value, ClSurvival survival) {
 
-		if (line.toLowerCase().contains("relapse") || line.toLowerCase().contains("recurrence")) {
+		boolean isFound = false;
+		
+		if (line.toLowerCase().contains("relapse") 
+				|| line.toLowerCase().contains("recurrence")
+				|| line.toLowerCase().contains("regional or distant")) {
 		
 			if (value!=null && value.contains("1")) {
 				survival.setRelapsed(true);
@@ -136,6 +150,12 @@ public class MatcherSurvival extends MatcherAbstract {
 				if (line.toLowerCase().contains("days")) {
 					// Conversion from days to months
 					Double numberofMonths = number / 30;
+					number = round(numberofMonths, 2);
+				}
+				
+				if (line.toLowerCase().contains("yrs") || line.toLowerCase().contains("years")) {
+					// Conversion from years to months
+					Double numberofMonths = number * 12;
 					number = round(numberofMonths, 2);
 				}
 

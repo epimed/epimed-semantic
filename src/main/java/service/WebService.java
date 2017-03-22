@@ -85,21 +85,39 @@ public class WebService extends BaseModule {
 		}	
 		return data;	
 	}
-	
+
 	/** ====================================================================================== */
 
 	public List<String> loadGeo(String geoAccession) {
 
 		String url = "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=" + geoAccession + "&targ=self&view=brief&form=text";
-		
+
 		String text = this.loadUrl(url);
 		String [] parts = text.split(System.getProperty( "line.separator" ));
 		List<String> data = new ArrayList<String>(Arrays.asList(parts));
-		
+
 		return data;	
 	}
 
-	
+	/** ====================================================================================== */
+
+	/**
+	 * 
+	 * @param geoAccession
+	 * @return
+	 */
+	public List<String> loadGeoData(String geoAccession) {
+
+		String url = "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=" + geoAccession + "&targ=self&view=data&form=text";
+
+		String text = this.loadUrl(url);
+		String [] parts = text.split(System.getProperty( "line.separator" ));
+		List<String> data = new ArrayList<String>(Arrays.asList(parts));
+
+		return data;	
+	}
+
+
 	/** ====================================================================================== */
 
 	public String loadUrl (String urlString) {
@@ -116,7 +134,7 @@ public class WebService extends BaseModule {
 					BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
 
 					result = readAll(br);
-					
+
 					br.close();
 					conn.disconnect();
 				}
@@ -140,7 +158,7 @@ public class WebService extends BaseModule {
 		}
 		return sb.toString();
 	}
-	
+
 
 	/** ======================================================================================*/
 
@@ -197,7 +215,7 @@ public class WebService extends BaseModule {
 
 		return null;
 	}
-	
+
 	/** ====================================================================================== */
 
 }
