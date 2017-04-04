@@ -37,7 +37,7 @@ public class ClOntologyKeywordDao extends BaseDao {
 		
 		List<ClOntologyKeyword> list1 = this.list();
 		
-		String query = "select term as id_keyword, id_category, true as enabled from epimed_semantic.view_ontology_dictionary where character_length(term)>3";
+		String query = "select term as id_keyword, id_category, true as enabled from epimed_semantic.view_ontology_dictionary where character_length(term)>1";
 
 		List<ClOntologyKeyword> list2 = session.createNativeQuery(query,ClOntologyKeyword.class).getResultList();
 	

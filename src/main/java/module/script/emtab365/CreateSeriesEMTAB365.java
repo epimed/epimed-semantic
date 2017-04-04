@@ -11,7 +11,7 @@
  * Author: Ekaterina Bourova-Flin 
  *
  */
-package module.script;
+package module.script.emtab365;
 
 
 import java.text.ParseException;
@@ -34,12 +34,12 @@ import config.HibernateUtil;
 import config.MongoUtil;
 import module.BaseModule;
 
-public class CreateProbcp extends BaseModule {
+public class CreateSeriesEMTAB365 extends BaseModule {
 
 	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	
 	@SuppressWarnings({ "unchecked" })
-	public CreateProbcp () {
+	public CreateSeriesEMTAB365 () {
 
 		// ===== Session Mongo =====
 
@@ -51,23 +51,25 @@ public class CreateProbcp extends BaseModule {
 
 		
 		Date submissionDate=null;
+		Date lastUpdate=null;
 		try {
-			submissionDate = dateFormat.parse("2017-03-20");
+			submissionDate = dateFormat.parse("2011-09-15");
+			lastUpdate = dateFormat.parse("2014-05-03");
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		List<String> platforms = new ArrayList<String>();
-		platforms.add("proteomics");
+		platforms.add("GPL570");
 		
 		Document docSeries = new Document();
 		docSeries
-		.append("_id", "PROBCP")
-		.append("title", "Breast cancer proteomics")
+		.append("_id", "E-MTAB-365")
+		.append("title", "Transcription profiling by array of breast cancer samples to define breast cancer subsets")
 		.append("platforms", platforms)
 		.append("submission_date", submissionDate)
-		.append("last_update", submissionDate)
+		.append("last_update", lastUpdate)
 		.append("import_date", new Date())
 		;
 
@@ -81,7 +83,7 @@ public class CreateProbcp extends BaseModule {
 	/** =============================================================== */
 
 	public static void main(String[] args) {
-		new CreateProbcp();
+		new CreateSeriesEMTAB365();
 	}
 
 	/** ============================================================== */

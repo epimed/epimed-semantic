@@ -35,6 +35,10 @@ public class MatcherFactory {
 
 		if (ontologyCategory!=null) {
 			
+			if (ontologyCategory.getIdCategory().equals("biomarker")) {
+				return new MatcherBiomarker(session, listLines);
+			}
+			
 			if (ontologyCategory.getIdCategory().equals("treatment")) {
 				return new MatcherTreatment(session, listLines);
 			}

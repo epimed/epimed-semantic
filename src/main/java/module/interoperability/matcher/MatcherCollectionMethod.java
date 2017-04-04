@@ -68,6 +68,7 @@ public class MatcherCollectionMethod extends MatcherAbstract {
 						}	
 					}
 
+					 
 					if (set.isEmpty()) {
 						// === Search for a particular cell in the dictionary ===
 						List<ViewOntologyDictionary> listDictionaryTerms = findDictionaryMatches(line, "collection_method");

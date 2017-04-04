@@ -16,6 +16,25 @@ public class FormatService {
 
 	/** ================================================================================= */
 
+	public List<String> splitInArray(String line, String separator) {
+		List<String> list = null;
+
+		if (line!=null && !line.isEmpty()) {
+			list = new ArrayList<String>();
+			String[] parts = line.split(separator);
+			for (String part : parts) {
+				String value = part.trim();
+				if (value!=null && !value.isEmpty()) {
+					list.add(value);
+				}
+			}
+		}
+
+		return list;
+	}
+
+	/** ================================================================================= */
+
 	public List<Object> convertHomogeneousMongoDocuments (List<Document> listDocuments) {
 
 		List<Object> data = new ArrayList<Object>();

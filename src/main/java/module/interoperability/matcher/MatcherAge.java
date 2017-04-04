@@ -29,8 +29,8 @@ public class MatcherAge extends MatcherAbstract {
 
 		for (int l=0; l<listLines.size(); l++) {
 			String line = listLines.get(l).toLowerCase();
-			boolean isAge = line.startsWith("age") || line.contains(" age ") ||  line.contains(" age:") 
-					|| line.endsWith(" age") || line.contains("dpc") || line.contains("old");
+			boolean isAge = (line.startsWith("age") || line.contains(" age ") ||  line.contains(" age:") 
+					|| line.endsWith(" age") || line.contains("dpc") || line.contains("old")) && !line.contains("(bin)");
 			// System.out.println("line = " + line + ", isAge = " + isAge);
 			if (isAge) {
 				listAgeLines.add(line);

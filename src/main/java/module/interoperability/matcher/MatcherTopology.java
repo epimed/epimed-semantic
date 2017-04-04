@@ -32,7 +32,8 @@ public class MatcherTopology extends MatcherAbstract {
 			String line = listLines.get(l);
 
 			if (!line.toLowerCase().contains("primary site") && !line.toLowerCase().contains(" - ") 
-					&& !line.toLowerCase().contains("symptoms") && !line.toLowerCase().contains("metastatic site")) {
+					&& !line.toLowerCase().contains("symptoms") && !line.toLowerCase().contains("metastatic site")
+					&&!line.toLowerCase().contains("non-")) {
 
 				List<ViewOntologyDictionary> listDictionaryTerms = findDictionaryMatches(line, "topology");
 

@@ -41,14 +41,14 @@ import service.OntologyService;
 
 public class AnalyseGeo extends BaseModule {
 
-	private String gseNumber = "GSE9014";
+	private String gseNumber = "GSE61304";
 	
-	private boolean commit = false;
+	private boolean commit = true;
 
 	// === Categories to update ===
-	// private String [] categories = {"tnm"};
+	// private String [] categories = {"biomarker"};
 	private String [] categories = {"pathology", "collection_method", "patient", "topology", "morphology", "biopatho", "tissue_stage", "tissue_status",
-			"survival", "tnm", "exposure", "treatment"};
+	 		"survival", "tnm", "exposure", "treatment", "biomarker"};
 
 	// === Initialization ===
 	private Map <String, Set<String>> mapNotRecognized = new HashMap <String, Set<String>>();
@@ -84,8 +84,8 @@ public class AnalyseGeo extends BaseModule {
 
 		// ===== Analyse ======
 
-		// for (int i=0; i<listDocuments.size(); i++) {
-		for (int i=0; i<1; i++) {
+		for (int i=0; i<listDocuments.size(); i++) {
+		// for (int i=0; i<1; i++) {
 			Document doc = listDocuments.get(i);
 			Document expGroup = (Document) doc.get("exp_group");
 

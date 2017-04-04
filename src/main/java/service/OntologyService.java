@@ -102,8 +102,9 @@ public class OntologyService {
 			MatcherAbstract matcher = matcherFactory.getMatcher(ontologyCategory, listLines);
 
 			if (matcher!=null) {
+				
 				List<Object> listObjects = (List<Object>) matcher.match();
-
+				
 				if (mapOntologyObjects.get(ontologyCategory.getIdCategory())==null) {
 					mapOntologyObjects.put(ontologyCategory.getIdCategory(), new ArrayList<Object>());
 				}
@@ -156,7 +157,7 @@ public class OntologyService {
 					// Search category by keyword
 					String keyword = ontologyKeyword.getId().getIdKeyword();
 					isKeywordFound = lineLowCase.contains(keyword);
-
+					
 					if (isKeywordFound) {
 
 						ClOntologyCategory ontologyCategory = ontologyKeyword.getClOntologyCategory();

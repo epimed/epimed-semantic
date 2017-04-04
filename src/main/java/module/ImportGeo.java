@@ -13,8 +13,9 @@
  */
 package module;
 
+import static com.mongodb.client.model.Filters.eq;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.bson.Document;
@@ -29,17 +30,16 @@ import config.MongoUtil;
 import model.bind.NcbiGeoGpl;
 import model.bind.NcbiGeoGse;
 import model.bind.NcbiGeoGsm;
+import service.MongoService;
 import service.WebService;
-
-import static com.mongodb.client.model.Filters.*;
 
 public class ImportGeo {
 
 
-	private String [] listGseNumber = {"GSE9014"};
+	private String [] listGseNumber = {"GSE61304"};
 
 	private WebService webService = new WebService();
-	private Date today = new Date();
+	private MongoService mongoService = new MongoService();
 
 	public ImportGeo () {
 
@@ -60,27 +60,25 @@ public class ImportGeo {
 			System.out.println(k + " Import " + gseNumber);
 
 			// ===== Load GSE =====
+			
 			NcbiGeoGse gse = new NcbiGeoGse(webService.loadGeo(gseNumber));	
 			System.out.println(gse);
 
+			
 			// ===== Series =====
+			
 			MongoCollection<Document> collectionSeries = db.getCollection("series");
 
-			Document docSeries = new Document();
-			docSeries
-			.append("_id", gse.getGseNumber())
-			.append("title", gse.getTitle())
-			.append("platforms", gse.getListGpl())
-			.append("submission_date", gse.getSubmissionDate())
-			.append("last_update", gse.getLastUpdate())
-			.append("import_date", today)
-			;
+			Document docSeries = mongoService.createSeries(gse.getGseNumber(), gse.getTitle(), 
+					gse.getListGpl(), gse.getSubmissionDate(), gse.getLastUpdate());
+			
 
 			UpdateResult updateResult = collectionSeries.updateOne(Filters.eq("_id", gse.getGseNumber()), new Document("$set", docSeries));
 			if (updateResult.getMatchedCount()==0) {
 				collectionSeries.insertOne(docSeries);
 			}
 
+			
 			// ===== Platforms =====
 
 			MongoCollection<Document> collectionPlatforms = db.getCollection("platforms");
@@ -91,17 +89,9 @@ public class ImportGeo {
 
 				System.out.println("\t Import platform " + gpl.getGplNumber());
 
-				Document docPlatforms = new Document();
-				docPlatforms
-				.append("_id", gpl.getGplNumber())
-				.append("title", gpl.getTitle())
-				.append("id_organism", gpl.getTaxid())
-				.append("organism", gpl.getOrganism())
-				.append("manufacturer", gpl.getManufacturer())
-				.append("submission_date", gpl.getSubmissionDate())
-				.append("last_update", gpl.getLastUpdate())
-				.append("import_date", today)
-				;
+				Document docPlatforms = mongoService.createPlatform(gpl.getGplNumber(), gpl.getTitle(), 
+						gpl.getTaxid(), gpl.getOrganism(), gpl.getManufacturer(), gpl.getSubmissionDate(), gpl.getLastUpdate());
+				
 
 				UpdateResult res = collectionPlatforms.updateOne(Filters.eq("_id", gpl.getGplNumber()), new Document("$set", docPlatforms));
 				if (res.getMatchedCount()==0) {
@@ -134,18 +124,8 @@ public class ImportGeo {
 
 				// ===== Sample Document =====
 
-				Document docSample = new Document();
-
-				docSample
-				.append("_id", gsm.getGsmNumber())
-				.append("main_gse_number", gse.getGseNumber())
-				.append("series", gsm.getListGse())
-				.append("organism", gsm.getOrganism())
-				.append("submission_date", gsm.getSubmissionDate())
-				.append("last_update", gsm.getLastUpdate())
-				.append("import_date", today)
-				.append("analyzed", analysed)
-				;
+				Document docSample = mongoService.createSample(gsm.getGsmNumber(), gse.getGseNumber(), 
+						gsm.getListGse(), gsm.getOrganism(), gsm.getSubmissionDate(), gsm.getLastUpdate(), analysed);
 
 				// ===== Mandatory parameters =====
 
@@ -156,7 +136,8 @@ public class ImportGeo {
 					expGroup = (Document) docSampleExist.get("exp_group");
 				}
 				else {
-					expGroup = generateExpGroup(gse, gsm);
+					expGroup = mongoService.createExpGroup(docSample, gsm.getGplNumber(), gsm.getTitle(), gsm.getSourceName());
+					
 				}
 				docSample.append("exp_group", expGroup);
 
@@ -179,56 +160,7 @@ public class ImportGeo {
 		mongoClient.close();	
 	}
 
-	/** =============================================================== */
-
-
-	public Document generateExpGroup(NcbiGeoGse gse, NcbiGeoGsm gsm) {
-
-
-		Document expGroup = new Document();
-
-		expGroup
-		.append("id_sample", gsm.getGsmNumber())
-		.append("main_gse_number", gse.getGseNumber())
-		.append("id_platform", gsm.getGplNumber())
-		.append("sample_title", gsm.getTitle())
-		.append("sample_source", gsm.getSourceName())
-		.append("sex", null)
-		.append("ethnic_group", null)
-		.append("age_min", null)
-		.append("age_max", null)
-		.append("id_tissue_stage", null)
-		.append("tissue_stage", null)
-		.append("id_tissue_status", null)
-		.append("tissue_status", null)
-		.append("id_pathology", null)
-		.append("pathology", null)
-		.append("collection_method", null)
-		.append("id_topology", null)
-		.append("topology", null)
-		.append("id_topology_group", null)
-		.append("topology_group", null)
-		.append("id_morphology", null)
-		.append("morphology", null)
-		.append("histology_type", null)
-		.append("histology_subtype", null)
-		.append("t", null)
-		.append("n", null)
-		.append("m", null)
-		.append("tnm_stage", null)
-		.append("tnm_grade", null)
-		.append("dfs_months", null)
-		.append("os_months", null)
-		.append("relapsed", null)
-		.append("dead", null)
-		.append("treatment", null)
-		.append("exposure", null)
-		;
-
-		return expGroup;
-	}
-
-
+	
 	/** =============================================================== */
 
 	public Document generateParameters(NcbiGeoGsm gsm) {
@@ -245,18 +177,26 @@ public class ImportGeo {
 
 	public void append(Document doc, List<String> list) {
 
+		// String regex = "[:]";
 		String regex = "[:=]";
 		List<String> listText = new ArrayList<String>();
 
 		for (String rawLine : list) {
 
+			// String [] lines = rawLine.split(","); // Split into several entries
 			String [] lines = rawLine.split("[,;]"); // Split into several entries
 
+			// System.out.println("------------------------------------------");
+			// System.out.println("rawLine=" + rawLine);
+			// System.out.println("lines=" + Arrays.toString(lines));
+			
+			
 			for (String line : lines) {
 
 				line = line.trim();
 				
-				if (line.contains(":") || line.contains("=")) {
+				if (line.contains(":") || line.contains("=")
+						) {
 
 					String [] parts = line.split(regex);
 
@@ -278,6 +218,7 @@ public class ImportGeo {
 							value = existingValue + ", " + value;
 						}
 						doc.append(key, value);
+						// System.out.println(key + "=" + value);
 					}
 				}
 

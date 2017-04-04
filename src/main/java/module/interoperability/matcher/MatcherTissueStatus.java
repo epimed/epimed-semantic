@@ -61,7 +61,10 @@ public class MatcherTissueStatus extends MatcherAbstract {
 		Collections.sort(listId);
 
 		for (int i=0; i<listId.size(); i++) {
-			list.add(tissueStatusDao.find(Integer.parseInt(listId.get(i))));
+			ClTissueStatus ts = tissueStatusDao.find(Integer.parseInt(listId.get(i)));
+			if (ts!=null) {
+				list.add(ts);
+			}
 		}
 
 		list.addAll(set);

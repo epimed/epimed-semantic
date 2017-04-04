@@ -11,24 +11,31 @@
  * Author: Ekaterina Bourova-Flin 
  *
  */
-package module.script;
+package module.test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.bson.Document;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Accumulators;
+import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Sorts;
 
 import config.MongoUtil;
 import module.BaseModule;
 
-public class SearchSamples extends BaseModule {
+public class SearchPlatforms extends BaseModule {
 
-	public SearchSamples () {
+	public SearchPlatforms () {
 
 
 		// ===== Connection =====
@@ -38,21 +45,20 @@ public class SearchSamples extends BaseModule {
 		MongoCollection<Document> collectionSamples = db.getCollection("samples");
 
 		List<Document> list = collectionSamples
-				.find(Filters.and(
-						Filters.ne("exp_group.dead", null)
-						,
-						Filters.eq("exp_group.id_topology_group", "C50")
-						)
-						)
+				.aggregate(
+						Arrays.asList(
+								Aggregates.group("$exp_group.id_platform", Accumulators.sum("total", 1)),
+								Aggregates.sort(Sorts.orderBy(Sorts.descending("total")))
+								))
 				.into(new ArrayList<Document>());
-		
-		System.out.println("Found " + list.size() + " samples");
+
 		
 		for (int i=0; i<list.size(); i++) {
-			Document doc = list.get(i); 
-			System.out.println(doc);
+		
+			System.out.println((i+1) + " " + list.get(i));
+			
 		}
-
+		
 		mongoClient.close();	
 
 	}
@@ -60,7 +66,7 @@ public class SearchSamples extends BaseModule {
 	/** =============================================================== */
 
 	public static void main(String[] args) {
-		new SearchSamples();
+		new SearchPlatforms();
 	}
 
 

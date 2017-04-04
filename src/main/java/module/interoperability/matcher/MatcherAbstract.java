@@ -29,7 +29,8 @@ public abstract class MatcherAbstract {
 	protected String [] listExposurePatterns = {"[0-9]++[\\p{Space}]?(h|day[s]?)", "[0-9]++-?[0-9]*+"};
 	
 	protected String [] listCellLinePatterns = {};
-	// protected String [] listCellLinePatterns = {"lymphomaburkittsDaudi", "LymphomaRaji", "[A-Z]{2,}[-]{1}[0-9]+"};
+	// protected String [] listCellLinePatterns = {"[A-Z]{2,}[-]{0,1}[0-9]+"};
+	// protected String [] listCellLinePatterns = {"[A-Z]{2,}[-]{0,1}[A-Z]*[-]{0,1}[0-9]+"};
 	
 	protected String [] listIsolatedCellsPattern = {"[A-Z]{1,5}[0-9]{1,5}[\\+|\\-]", "[a-zA-Z]{1,5}[0-9]{1,5}(neg|pos|NEG|POS)", "PMNs",
 			"(P|p)romyelocytes", "(h)?ESC(s)?(-derived EC)?(s)?"};

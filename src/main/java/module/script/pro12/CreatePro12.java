@@ -11,7 +11,7 @@
  * Author: Ekaterina Bourova-Flin 
  *
  */
-package module.script;
+package module.script.pro12;
 
 
 import java.text.ParseException;

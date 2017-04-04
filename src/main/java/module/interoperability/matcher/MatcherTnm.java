@@ -54,15 +54,20 @@ public class MatcherTnm extends MatcherAbstract {
 				}
 			}
 			
-			if (line.toLowerCase().contains("stage:") && value.toLowerCase()!=null 
+			if (line.toLowerCase().contains("stage:") 
+					&& value.toLowerCase()!=null 
 					&& !value.toLowerCase().contains("n/a")
+					&& !value.toLowerCase().contains("na")
 					&& !value.toLowerCase().contains("-")) {
 				tnm.setStage(value);
 			}
 			
-			if (line.toLowerCase().contains("grade:") && value.toLowerCase()!=null 
+			if ((line.toLowerCase().contains("grade:") || line.toLowerCase().contains("richardson") ) 
+					&& value.toLowerCase()!=null 
 					&& !value.toLowerCase().contains("n/a")
-					&& !value.toLowerCase().contains("-")) {
+					&& !value.toLowerCase().contains("-")
+					&& !value.toLowerCase().contains("na")) {
+				// tnm.setGrade(value.split(",")[0].trim());
 				tnm.setGrade(value);
 			}
 

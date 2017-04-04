@@ -1,15 +1,19 @@
 package service;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -19,6 +23,109 @@ public class FileService {
 	private static String columnSeparator = ";";
 	private static String lineSeparator = "\n";
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd");
+
+	
+	
+	/** =============================================================== */
+
+	public Integer findIndex(List<String> header, String key) {
+
+		Integer index = null;
+		key = key.toLowerCase().trim();
+
+		int i=0;
+		boolean isFound = false;
+		while (!isFound && i<header.size()) {
+			String headerItem = header.get(i);
+			if (headerItem.toLowerCase().contains(key)) {
+				isFound=true;
+				index = i;
+			}
+			i++;
+		}
+
+		return index;
+	}
+
+	/** =============================================================== */
+
+	public List<List<String>> readData(List<String> listRows, String separator) {
+
+		List<List<String>> data = new ArrayList<List<String>>();
+
+		int j=0;
+		for (int i=0; i<listRows.size(); i++) {
+			String row = listRows.get(i);
+			if (row!=null && !row.contains("#")) {
+				if (j>0) {
+					String [] parts = row.split(separator);
+					List<String> dataline = new ArrayList<String>();
+					for (String part : parts) {
+						dataline.add(part.trim().replaceAll("\"", ""));
+					}
+					data.add(dataline);
+				}
+				j++;
+			}
+		}
+
+		return data;
+
+	}
+
+
+	/** =============================================================== */
+
+	public List<String> readHeader(List<String> listRows, String separator) {
+
+		List<String> header = new ArrayList<String>();
+		int i=0;
+		boolean isFound = false;
+		String dataline = null;
+		while (!isFound && i<listRows.size()) {
+			dataline = listRows.get(i);
+			if (!dataline.startsWith("#")) {
+				isFound = true;
+			}
+			i++;
+		}
+
+		if (dataline!=null) {
+			String [] parts = dataline.split(separator);
+			for (String part : parts) {
+				header.add(part.trim().replaceAll("\"", ""));
+			}
+		}
+
+		return header;
+
+	}
+
+
+	/** ================================================================================= */
+
+	public List<String> loadTextFile (String fileName) {
+
+		List<String> data = new ArrayList<String>();
+
+		try {
+
+			BufferedReader br = new BufferedReader(new FileReader(fileName));	
+
+			String sCurrentLine;
+
+			while ((sCurrentLine = br.readLine()) != null) {
+				data.add(sCurrentLine);
+			}
+			br.close();
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return data;
+	}
+
 
 	/** ================================================================================= */
 
@@ -147,7 +254,7 @@ public class FileService {
 				for (int j=0; j<data.length; j++) {
 
 					Cell cell = row.createCell(cellnum++);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellType(CellType.STRING);
 
 					boolean isNull = (data[j]==null);
 					if (!isNull) {
@@ -177,7 +284,7 @@ public class FileService {
 
 	public void addSheet(XSSFWorkbook workbook, String sheetName, List<String> header, List<Object> listData) {
 
-		
+
 		// === Create a blank sheet ===
 		XSSFSheet sheet = workbook.createSheet(sheetName);
 
@@ -206,7 +313,7 @@ public class FileService {
 				for (int j=0; j<data.length; j++) {
 
 					Cell cell = row.createCell(cellnum++);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellType(CellType.STRING);
 
 					boolean isNull = (data[j]==null);
 					if (!isNull) {

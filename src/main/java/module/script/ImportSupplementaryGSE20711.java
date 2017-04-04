@@ -13,6 +13,7 @@
  */
 package module.script;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.Document;
@@ -27,11 +28,11 @@ import com.mongodb.client.model.Filters;
 import config.HibernateUtil;
 import config.MongoUtil;
 import module.BaseModule;
+import service.ExcelService;
 
-public class TransferPro12 extends BaseModule {
+public class ImportSupplementaryGSE20711 extends BaseModule {
 
-	@SuppressWarnings({ "unchecked" })
-	public TransferPro12 () {
+	public ImportSupplementaryGSE20711 () {
 
 
 		// ===== Session PostgreSQL =====
@@ -45,27 +46,34 @@ public class TransferPro12 extends BaseModule {
 
 		MongoCollection<Document> collection = db.getCollection("samples");
 
-		String sql = "select id_sample from epimed_prod.om_sample join epimed_prod.om_sample_series using (id_sample) "
-				+ "join epimed_prod.om_series using (id_series) where id_series='PRO12'";
+		// ===== Excel data loader =====
 
-		List<String> list = session.createSQLQuery(sql).list();
+		String inputfile = this.getInputDirectory() + this.getDirSeparator() + "GSE20711_emmm0003-0726-SD2.xlsx";
+		System.out.println("LOADING \t " + inputfile);
+		ExcelService excelService = new ExcelService();
+		excelService.load(inputfile);
 
-
-		Document pro12 = new Document();
-		pro12.append("series", "PRO12");
-
-		for (String gsmNumber : list) {
-
-
-			Document doc = collection.find(Filters.eq("_id", gsmNumber)).first();
-
-			System.out.println("-----------------------------");
-			System.out.println(gsmNumber + " " + doc);
-
-			if (doc!=null) {
-				// Update Mongo document
-				collection.updateOne(Filters.eq("_id", gsmNumber), new Document("$push", pro12));
-			}
+		String gseNumber = "GSE20711";
+		
+		for (int i=0; i<excelService.getData().size(); i++) {
+			List<Object> dataLine = excelService.getData().get(i);
+			
+			
+			String bcString = (String) dataLine.get(0);
+			bcString = bcString.replaceAll("BC", "");
+			
+			Integer bcNumber = Integer.parseInt(bcString);
+			
+			Document docSample = collection
+					.find(Filters.and(
+							Filters.in("series", gseNumber),
+							Filters.eq("exp_group.sample_title", "Breast tumor from patient P_" + bcNumber + " (expression data)")
+							)
+							).first();
+			
+			System.out.println("-------------------------------------------");
+			System.out.println(dataLine);
+			System.out.println(docSample);
 
 		}
 
@@ -78,7 +86,7 @@ public class TransferPro12 extends BaseModule {
 	/** =============================================================== */
 
 	public static void main(String[] args) {
-		new TransferPro12();
+		new ImportSupplementaryGSE20711();
 	}
 
 	/** ============================================================== */

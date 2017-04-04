@@ -11,7 +11,7 @@
  * Author: Ekaterina Bourova-Flin 
  *
  */
-package module.script;
+package module.script.probcp;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,8 +25,6 @@ import org.hibernate.SessionFactory;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.result.UpdateResult;
 
 import config.HibernateUtil;
 import config.MongoUtil;
@@ -35,11 +33,11 @@ import model.entity.ClTopology;
 import module.BaseModule;
 
 @SuppressWarnings("unchecked")
-public class UpdateSamplesProbcp extends BaseModule {
+public class ImportSamplesProbcp extends BaseModule {
 
 	private Date today = new Date();
 
-	public UpdateSamplesProbcp () {
+	public ImportSamplesProbcp () {
 
 
 		// ===== Connection =====
@@ -52,7 +50,7 @@ public class UpdateSamplesProbcp extends BaseModule {
 		SessionFactory sessionFactory = HibernateUtil.buildSessionFactory("config/epimed_semantic.hibernate.cfg.xml");
 		Session session = sessionFactory.openSession();
 
-		String[] studies = {"tya16"};
+		String[] studies = {"tya16", "law15"};
 		List<String> series = new ArrayList<String>();
 
 		for (int l=0; l<studies.length; l++) {
@@ -80,15 +78,70 @@ public class UpdateSamplesProbcp extends BaseModule {
 				
 				System.out.println(Arrays.toString(lineSample));
 				
-				String id = studyName + "_" + idSample;
 				
-				Document docSample = collectionSamples.find(Filters.eq("_id", id)).first();
-				Document expgroup = (Document) docSample.get("exp_group");
-				expgroup.append("tnm_grade", grade);
-				expgroup.append("tnm_stage", null);
-				docSample.append("exp_group", expgroup);
+				// ===== Collection method ====
+				String collectionMethod = "biopsy";
+				if (idStudy.equals("law15") && !idSample.startsWith("Tumor")) {
+					collectionMethod = "cell line";
+				}
+				
+				// ==== Topology ====
+				ClTopology topology = session.get(ClTopology.class, "C50.9");
+				
+				// === Morphology ===
+				ClMorphology morphology = session.get(ClMorphology.class, "8010/3"); // carcinoma
+				ClMorphology idc = session.get(ClMorphology.class, "8500/3"); // inf. duct. carcinoma
+				ClMorphology lo = session.get(ClMorphology.class, "8520/3"); // lobular carcinoma
+				ClMorphology ac = session.get(ClMorphology.class, "8140/3"); // adenocarcinoma
+				
+				if (type!=null && (type.contains("IDC") || type.contains("DC") || type.contains("ductal"))) {
+					morphology = idc;
+				}
+				if (type!=null && type.contains("Lo")) {
+					morphology = lo;
+				}
+				
+				if (type!=null && (type.contains("AC") || type.contains("adeno"))) {
+					morphology = ac;
+				}
+				
+				// ===== Sample Document =====
 
-				UpdateResult updateResult = collectionSamples.updateOne(Filters.eq("_id", id), new Document("$set", docSample));
+				Document docSample = new Document();
+
+				docSample
+				.append("_id", studyName + "_" + idSample)
+				.append("main_gse_number", studyName)
+				.append("series", series)
+				.append("organism", "Homo sapiens")
+				.append("submission_date", today)
+				.append("last_update", today)
+				.append("import_date", today)
+				.append("analyzed", true)
+				;
+
+				// ===== Mandatory parameters =====
+
+				Document expGroup = this.generateExpGroup(idSample, studyName, tnmStage, grade, type, collectionMethod, topology, morphology) ;
+				docSample.append("exp_group", expGroup);
+
+				// ===== Supplementary parameters =====
+
+				Document parameters = this.generateParameters(idSample);
+				docSample.append("parameters", parameters);
+				parameters.append("clinical_classification", clinicalClassification);
+				parameters.append("tnm_stage", tnmStage);
+				parameters.append("grade", grade);
+				parameters.append("type", type);
+				
+				
+				// === Append parameters to document ===
+				
+				
+				docSample.append("parameters", parameters);
+				
+				// === Save ===
+				collectionSamples.insertOne(docSample);
 				
 				System.out.println(docSample);
 				
@@ -106,7 +159,7 @@ public class UpdateSamplesProbcp extends BaseModule {
 	/** =============================================================== */
 
 	public static void main(String[] args) {
-		new UpdateSamplesProbcp();
+		new ImportSamplesProbcp();
 	}
 
 	

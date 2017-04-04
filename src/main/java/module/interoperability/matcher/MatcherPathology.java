@@ -27,10 +27,10 @@ public class MatcherPathology extends MatcherAbstract {
 		for (int l=0; l<listLines.size(); l++) {
 
 			String line = listLines.get(l);
-			
+
 			if (line.contains(":")) {
 				line = line.split(":")[1].trim();
-				
+
 				if (line.contains("yes")) {
 					line = listLines.get(l);
 				}				
@@ -38,17 +38,21 @@ public class MatcherPathology extends MatcherAbstract {
 
 			List<ViewOntologyDictionary> listDictionaryTerms = findDictionaryMatches(line, "pathology");
 
+
 			// For matched terms, search corresponding topologies
-			for (int i=0; i<listDictionaryTerms.size(); i++) {
-				String idPathology = listDictionaryTerms.get(i).getId().getIdReference();
-				setId.add(idPathology);
+
+			if (listDictionaryTerms!=null) {
+				for (int i=0; i<listDictionaryTerms.size(); i++) {
+					String idPathology = listDictionaryTerms.get(i).getId().getIdReference();
+					setId.add(idPathology);
+				}
 			}
 		}
 
 		listId.addAll(setId);
 		Collections.sort(listId);
-		
-		
+
+
 		for (int i=0; i<listId.size(); i++) {
 			list.add(session.get(ClPathology.class, listId.get(i).trim()));
 		}

@@ -27,6 +27,7 @@ public class MatcherCellLine extends MatcherAbstract {
 	}
 
 	public List<ClCellLine> match() {
+		
 		// System.out.println("=== " + this.getClass().getName() + " ===");
 
 
@@ -53,6 +54,7 @@ public class MatcherCellLine extends MatcherAbstract {
 					}
 					isPatternFound= matcher.find();
 				}	
+				
 				// System.out.println("\t --> " + pattern + " " + listLines.get(l) + "\t-->\t" + "found=" + isPatternFound + ", extract=" + (isPatternFound ? matcher.group() : null));
 			}
 		}

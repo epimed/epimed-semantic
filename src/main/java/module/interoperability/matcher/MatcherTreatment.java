@@ -32,7 +32,7 @@ public class MatcherTreatment extends MatcherAbstract {
 			String line = listLines.get(l);
 			String value = this.extractValue(listLines.get(l));
 
-			if (value!=null) {
+			if (value!=null && !value.toLowerCase().startsWith("no")) {
 
 				List<ViewOntologyDictionary> listDictionaryTerms = findDictionaryMatches(line, "treatment");
 
