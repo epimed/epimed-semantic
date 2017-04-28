@@ -15,9 +15,6 @@ package module;
 
 import static com.mongodb.client.model.Filters.eq;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bson.Document;
 
 import com.mongodb.MongoClient;
@@ -36,7 +33,7 @@ import service.WebService;
 public class ImportGeo {
 
 
-	private String [] listGseNumber = {"GSE61304"};
+	private String [] listGseNumber = {"GSE74104"};
 
 	private WebService webService = new WebService();
 	private MongoService mongoService = new MongoService();
@@ -47,7 +44,6 @@ public class ImportGeo {
 
 		MongoClient mongoClient = MongoUtil.buildMongoClient();
 		MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
-		// MongoDatabase db = mongoClient.getDatabase("geo");
 
 		// ===== Insert data =====
 
@@ -90,7 +86,8 @@ public class ImportGeo {
 				System.out.println("\t Import platform " + gpl.getGplNumber());
 
 				Document docPlatforms = mongoService.createPlatform(gpl.getGplNumber(), gpl.getTitle(), 
-						gpl.getTaxid(), gpl.getOrganism(), gpl.getManufacturer(), gpl.getSubmissionDate(), gpl.getLastUpdate());
+						gpl.getTaxid(), gpl.getOrganism(), gpl.getManufacturer(), gpl.getSubmissionDate(),
+						gpl.getLastUpdate(), gpl.getTechnology());
 				
 
 				UpdateResult res = collectionPlatforms.updateOne(Filters.eq("_id", gpl.getGplNumber()), new Document("$set", docPlatforms));
@@ -166,73 +163,13 @@ public class ImportGeo {
 	public Document generateParameters(NcbiGeoGsm gsm) {
 		Document parameters = new Document();
 		parameters.append("id_sample", gsm.getGsmNumber());
-		this.append(parameters, gsm.getDescription());
-		this.append(parameters, gsm.getListCharacteristics());
+		mongoService.append(parameters, gsm.getDescription());
+		mongoService.append(parameters, gsm.getListCharacteristics());
 		// parameters.append("extract_protocol", gsm.getExtractProtocol())
 		;
 		return parameters;
 	}
 
-	/** =============================================================== */
-
-	public void append(Document doc, List<String> list) {
-
-		// String regex = "[:]";
-		String regex = "[:=]";
-		List<String> listText = new ArrayList<String>();
-
-		for (String rawLine : list) {
-
-			// String [] lines = rawLine.split(","); // Split into several entries
-			String [] lines = rawLine.split("[,;]"); // Split into several entries
-
-			// System.out.println("------------------------------------------");
-			// System.out.println("rawLine=" + rawLine);
-			// System.out.println("lines=" + Arrays.toString(lines));
-			
-			
-			for (String line : lines) {
-
-				line = line.trim();
-				
-				if (line.contains(":") || line.contains("=")
-						) {
-
-					String [] parts = line.split(regex);
-
-					if (parts!=null && parts.length>1) {
-
-						String key = parts[0].trim();
-						key = key.replaceAll("\\.", " ");
-						String value = "";
-
-						for (int i=1; i<parts.length; i++) {
-							value = value + parts[i].trim();
-							if (i!=parts.length-1) {
-								value =value  + ": ";
-							}
-						}
-						value = value.trim();
-						String existingValue = doc.getString(key);
-						if (existingValue!=null && !existingValue.isEmpty()) {
-							value = existingValue + ", " + value;
-						}
-						doc.append(key, value);
-						// System.out.println(key + "=" + value);
-					}
-				}
-
-				else {
-					listText.add(line);
-				}
-			}
-		}
-
-		if (!listText.isEmpty()) {
-			doc.append("text", listText.toString().replaceAll("[\\[\\]]", ""));
-		}
-
-	}
 	/** =============================================================== */
 
 	public static void main(String[] args) {

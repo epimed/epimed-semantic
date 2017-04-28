@@ -38,11 +38,10 @@ import module.interoperability.dispatcher.DispatcherException;
 import module.interoperability.dispatcher.DispatcherFactory;
 import service.OntologyService;
 
-
+@SuppressWarnings({ "unchecked", "unused" })
 public class AnalyseGeo extends BaseModule {
 
-	private String gseNumber = "GSE61304";
-	
+	private String gseNumber = "E-MTAB-3716";
 	private boolean commit = true;
 
 	// === Categories to update ===
@@ -54,9 +53,7 @@ public class AnalyseGeo extends BaseModule {
 	private Map <String, Set<String>> mapNotRecognized = new HashMap <String, Set<String>>();
 	private Map <String, Set<String>> mapRecognized = new HashMap <String, Set<String>>();
 	private Map <String, Set<String>> mapRecognizedSeveral = new HashMap <String, Set<String>>();
-
-
-	@SuppressWarnings({ "unchecked", "unused" })
+	
 	public AnalyseGeo () {
 
 
@@ -75,13 +72,13 @@ public class AnalyseGeo extends BaseModule {
 				// .find(Filters.and(Filters.in("series", gseNumber), Filters.eq("analyzed", false)))
 				.into(new ArrayList<Document>());
 
-
-
 		// ===== Service =====
 		OntologyService ontologyService = new OntologyService(session);
 		DispatcherFactory dispatcherFactory = new DispatcherFactory(session);
 
-
+		// ===== Begin transaction =====
+		session.beginTransaction();
+		
 		// ===== Analyse ======
 
 		for (int i=0; i<listDocuments.size(); i++) {
@@ -159,6 +156,9 @@ public class AnalyseGeo extends BaseModule {
 
 		}
 
+		// === Commit transaction ===
+		session.getTransaction().commit();
+		// session.getTransaction().rollback();
 
 
 		if (session.isOpen()) {session.close();}

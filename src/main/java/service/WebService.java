@@ -27,10 +27,10 @@ public class WebService extends BaseModule {
 
 	public WebService(){
 		if (this.isWindows()) {
-			System.getProperties().put("http.proxyHost", "www-cache.ujf-grenoble.fr");
-			System.getProperties().put("http.proxyPort", "3128");
-			System.getProperties().put("https.proxyHost", "www-cache.ujf-grenoble.fr");
-			System.getProperties().put("https.proxyPort", "3128");
+			// System.getProperties().put("http.proxyHost", "www-cache.ujf-grenoble.fr");
+			// System.getProperties().put("http.proxyPort", "3128");
+			// System.getProperties().put("https.proxyHost", "www-cache.ujf-grenoble.fr");
+			// System.getProperties().put("https.proxyPort", "3128");
 		}
 	}
 
@@ -145,9 +145,10 @@ public class WebService extends BaseModule {
 			} 
 		}
 		return result;
-
 	}
 
+	
+	
 	/** ======================================================================================*/
 
 	private String readAll(Reader rd) throws IOException {

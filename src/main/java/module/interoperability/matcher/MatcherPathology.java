@@ -41,7 +41,7 @@ public class MatcherPathology extends MatcherAbstract {
 
 			// For matched terms, search corresponding topologies
 
-			if (listDictionaryTerms!=null) {
+			if (listDictionaryTerms!=null && !line.contains("non-") && !line.contains("without")) {
 				for (int i=0; i<listDictionaryTerms.size(); i++) {
 					String idPathology = listDictionaryTerms.get(i).getId().getIdReference();
 					setId.add(idPathology);

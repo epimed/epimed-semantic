@@ -22,7 +22,13 @@ public class DispatcherPatient extends DispatcherAbstract {
 	public void create(Document doc, Map<String, List<Object>> mapOntologyObjects) throws DispatcherException {
 
 		String sex = (String) makeChoice(mapOntologyObjects, "sex");
+		if (sex!=null && sex.equals("null")) {
+			sex = null;
+		}
 		String ethnicGroup = (String) makeChoice(mapOntologyObjects, "ethnic_group");
+		if (ethnicGroup!=null && ethnicGroup.equals("null")) {
+			ethnicGroup = null;
+		}
 		ClCellLine cellLine = (ClCellLine) makeChoice(mapOntologyObjects, "cell_line");
 
 		// ===== Sex  from topology =====

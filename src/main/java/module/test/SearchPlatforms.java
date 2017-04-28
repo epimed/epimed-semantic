@@ -15,14 +15,13 @@ package module.test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.bson.Document;
 
+import com.mongodb.Block;
 import com.mongodb.MongoClient;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Accumulators;
@@ -43,7 +42,9 @@ public class SearchPlatforms extends BaseModule {
 		MongoClient mongoClient = MongoUtil.buildMongoClient();
 		MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
 		MongoCollection<Document> collectionSamples = db.getCollection("samples");
+		MongoCollection<Document> collectionPlatforms = db.getCollection("platforms");
 
+		
 		List<Document> list = collectionSamples
 				.aggregate(
 						Arrays.asList(
@@ -54,10 +55,14 @@ public class SearchPlatforms extends BaseModule {
 
 		
 		for (int i=0; i<list.size(); i++) {
-		
 			System.out.println((i+1) + " " + list.get(i));
-			
 		}
+		
+		
+		collectionPlatforms.find(Filters.regex("title", ".*ethyl.*")).forEach(printBlock);
+		// collectionPlatforms.find(Filters.eq("id_organism", "9606")).forEach(printBlock);
+		
+		
 		
 		mongoClient.close();	
 
@@ -71,5 +76,15 @@ public class SearchPlatforms extends BaseModule {
 
 
 	/** =============================================================== */
+	
+	Block<Document> printBlock = new Block<Document>() {
+	       @Override
+	       public void apply(final Document document) {
+	           System.out.println(document.toJson());
+	       }
+	};
+	
+	/** =============================================================== */
+	
 
 }

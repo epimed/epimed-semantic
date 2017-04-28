@@ -29,7 +29,7 @@ import config.MongoUtil;
 
 public class ClearGeoExpGroup extends BaseModule {
 
-	private String gseNumber = "GSE10885";
+	private String gseNumber = "GSE47361";
 
 	private boolean commit = true;
 

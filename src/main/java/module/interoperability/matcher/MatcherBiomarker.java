@@ -75,10 +75,10 @@ public class MatcherBiomarker extends MatcherAbstract {
 
 		// === Specific ===
 
-		if (value.contains("p53-")) {
+		if (value.contains("mut")) {
 			return "MUT";
 		}
-		if (value.contains("p53+") || value.contains("wt")) {
+		if (value.contains("wild") || value.contains("wt")) {
 			return "WT";
 		}
 

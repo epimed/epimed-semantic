@@ -22,6 +22,7 @@ public class NcbiGeoGpl extends NcbiGeo {
 
 	private String manufacturer;
 	private String taxid;
+	private String technology;
 
 
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd yyyy", Locale.ENGLISH);
@@ -38,6 +39,11 @@ public class NcbiGeoGpl extends NcbiGeo {
 	private void bind(List<String> data) {
 		for (int i=0; i<data.size(); i++) {
 			String line = data.get(i);
+
+			// Technology
+			if (line.startsWith("!Platform_technology")) {
+				this.technology = this.extractValue(line);
+			}
 
 			// Organism
 			if (line.startsWith("!Platform_organism")) {
@@ -88,11 +94,15 @@ public class NcbiGeoGpl extends NcbiGeo {
 
 
 
+	public String getTechnology() {
+		return technology;
+	}
+
 	public String getManufacturer() {
 		return manufacturer;
 	}
-	
-	
+
+
 
 	public String getTaxid() {
 		return taxid;
@@ -100,15 +110,10 @@ public class NcbiGeoGpl extends NcbiGeo {
 
 	@Override
 	public String toString() {
-		return "NcbiGeoGpl [manufacturer=" + manufacturer + ", taxid=" + taxid + ", title=" + title
-				+ ", submissionDate=" + submissionDate + ", lastUpdate=" + lastUpdate + ", gplNumber=" + gplNumber
-				+ ", organism=" + organism + "]";
+		return "NcbiGeoGpl [manufacturer=" + manufacturer + ", taxid=" + taxid + ", technology=" + technology
+				+ ", title=" + title + ", submissionDate=" + submissionDate + ", lastUpdate=" + lastUpdate
+				+ ", gplNumber=" + gplNumber + ", organism=" + organism + "]";
 	}
-
-	
-	
-
-	
 
 
 }

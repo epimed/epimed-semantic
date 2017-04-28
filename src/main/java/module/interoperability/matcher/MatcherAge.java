@@ -30,7 +30,11 @@ public class MatcherAge extends MatcherAbstract {
 		for (int l=0; l<listLines.size(); l++) {
 			String line = listLines.get(l).toLowerCase();
 			boolean isAge = (line.startsWith("age") || line.contains(" age ") ||  line.contains(" age:") 
-					|| line.endsWith(" age") || line.contains("dpc") || line.contains("old")) && !line.contains("(bin)");
+					|| line.endsWith(" age") || line.contains("dpc") || line.contains("old")) 
+					&& !line.contains("(bin)") 
+					&& !line.contains("methylation age")
+					&& !line.contains("age acceleration")
+					&& !line.contains("maternal age");
 			// System.out.println("line = " + line + ", isAge = " + isAge);
 			if (isAge) {
 				listAgeLines.add(line);
@@ -66,8 +70,10 @@ public class MatcherAge extends MatcherAbstract {
 
 						// === Minus : two possibilities : two positive ages or one negative age 
 
+						// System.out.println("value=" + value + ", ageString=" +  ageString);
+						
 						String[] ageParts = ageString.split("-"); // possibly 2 ages: ageMin-ageMax
-
+						// String[] ageParts = ageString.split("to"); // possibly 2 ages: ageMin-ageMax
 
 						if (ageParts.length>1 && (ageParts[0]==null || ageParts[0].isEmpty())) {
 							ageParts = new String[1];
@@ -80,7 +86,10 @@ public class MatcherAge extends MatcherAbstract {
 								Double number = Double.parseDouble(ageParts[j]);
 
 								// ==== Special cases =====
-								if (line.toLowerCase().contains("week") || line.toLowerCase().contains("pcw")) {
+								if (line.toLowerCase().contains("week") 
+										|| line.toLowerCase().contains("pcw") 
+										|| line.toLowerCase().contains("wk")
+										) {
 									// Conversion from weeks to years
 									Double numberOfDays = number * 7;
 									Double numberOfDaysInAYear = 365.0;
@@ -93,7 +102,10 @@ public class MatcherAge extends MatcherAbstract {
 									Double numberOfYears = number/numberOfMOnthsInAYear;
 									number = round(numberOfYears, 2);
 								}
-								if (line.toLowerCase().contains("day") || line.toLowerCase().contains("dpc")) {
+								if (line.toLowerCase().contains("day") 
+										|| line.toLowerCase().contains("dpc")
+										|| line.toLowerCase().contains("gestational")
+										) {
 									// Conversion from weeks to years
 									Double numberOfDaysInAYear = 365.0;
 									Double numberOfYears = number/numberOfDaysInAYear;

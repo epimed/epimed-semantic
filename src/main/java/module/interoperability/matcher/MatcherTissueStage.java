@@ -35,8 +35,9 @@ public class MatcherTissueStage extends MatcherAbstract {
 		for (int l=0; l<listLines.size(); l++) {
 
 			String line = listLines.get(l);
+			String value = this.extractValue(line);
 			
-			List<ViewOntologyDictionary> listDictionaryTerms = findDictionaryMatches(line, "tissue_stage");
+			List<ViewOntologyDictionary> listDictionaryTerms = findDictionaryMatches(value, "tissue_stage");
 
 			for (int i=0; i<listDictionaryTerms.size(); i++) {
 				String id = listDictionaryTerms.get(i).getId().getIdReference();
@@ -44,7 +45,7 @@ public class MatcherTissueStage extends MatcherAbstract {
 			}
 
 			if (line.toLowerCase().contains("embr")) {
-				setId.add("4");
+				setId.add("4"); // embryonic
 			}
 
 
@@ -73,12 +74,12 @@ public class MatcherTissueStage extends MatcherAbstract {
 					}	
 				}
 
-			}
+			}	
 		}
 
 		listId.addAll(setId);
 		Collections.sort(listId);		
-
+		
 		if (listId.size()>1) {
 			listId.clear();
 			listId.add("1");

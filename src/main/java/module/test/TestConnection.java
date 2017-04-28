@@ -11,11 +11,9 @@
  * Author: Ekaterina Bourova-Flin 
  *
  */
-package module;
+package module.test;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import static com.mongodb.client.model.Filters.eq;
 
 import org.bson.Document;
 
@@ -27,47 +25,53 @@ import com.mongodb.client.result.UpdateResult;
 
 import config.MongoUtil;
 import model.bind.NcbiGeoGpl;
+import model.bind.NcbiGeoGse;
+import model.bind.NcbiGeoGsm;
 import service.MongoService;
 import service.WebService;
 
-public class ImportPlatform {
+public class TestConnection {
 
+
+	private String [] listGseNumber = {"GSE74104"};
 
 	private WebService webService = new WebService();
 	private MongoService mongoService = new MongoService();
-	private Date today = new Date();
 
-	public ImportPlatform () {
+	public TestConnection () {
 
-		// ===== Connection =====
+		for (int k=0; k<listGseNumber.length; k++) {
 
-		MongoClient mongoClient = MongoUtil.buildMongoClient();
-		MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
-		MongoCollection<Document> collectionPlatforms = db.getCollection("platforms");
-		MongoCollection<Document> collectionSamples = db.getCollection("samples");
-		MongoCollection<Document> collectionSeries = db.getCollection("series");
+			String gseNumber = listGseNumber[k];
 
-		// ===== Platforms =====
+			System.out.println("------------------------------------------");
+			System.out.println(k + " Import " + gseNumber);
 
+			// ===== Load GSE =====
 
-		List<String> listGpl =  collectionSamples.distinct("exp_group.id_platform", String.class).into(new ArrayList<String>());
-
-		for (String idPlatform : listGpl) {
-			Document doc = collectionPlatforms.find(Filters.in("_id", idPlatform)).first();
-			if (doc.getString("type")==null) {
-				System.out.println(idPlatform + ": " + doc);
-			}
+			NcbiGeoGse gse = new NcbiGeoGse(webService.loadGeo(gseNumber));	
+			System.out.println(gse);
 		}
 
-
-		mongoClient.close();
 	}
 
 
 	/** =============================================================== */
 
+	public Document generateParameters(NcbiGeoGsm gsm) {
+		Document parameters = new Document();
+		parameters.append("id_sample", gsm.getGsmNumber());
+		mongoService.append(parameters, gsm.getDescription());
+		mongoService.append(parameters, gsm.getListCharacteristics());
+		// parameters.append("extract_protocol", gsm.getExtractProtocol())
+		;
+		return parameters;
+	}
+
+	/** =============================================================== */
+
 	public static void main(String[] args) {
-		new ImportPlatform();
+		new TestConnection();
 	}
 
 	/** ============================================================== */

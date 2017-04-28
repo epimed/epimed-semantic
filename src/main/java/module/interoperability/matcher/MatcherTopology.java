@@ -31,12 +31,12 @@ public class MatcherTopology extends MatcherAbstract {
 
 			String line = listLines.get(l);
 
-			if (!line.toLowerCase().contains("primary site") && !line.toLowerCase().contains(" - ") 
+			if (!line.toLowerCase().contains(" - ") 
 					&& !line.toLowerCase().contains("symptoms") && !line.toLowerCase().contains("metastatic site")
 					&&!line.toLowerCase().contains("non-")) {
 
 				List<ViewOntologyDictionary> listDictionaryTerms = findDictionaryMatches(line, "topology");
-
+				
 				// For matched terms, search corresponding topologies
 				for (int i=0; i<listDictionaryTerms.size(); i++) {
 					String idTopology = listDictionaryTerms.get(i).getId().getIdReference();
@@ -48,11 +48,11 @@ public class MatcherTopology extends MatcherAbstract {
 
 		listId.addAll(setId);
 		Collections.sort(listId);
-
+		
 		// Take the most detailed topology found = topology with the smallest ID
 
 		if (!listId.isEmpty()) {
-			list.add(topologyDao.find(listId.get(0)));
+			list.add(topologyDao.find(listId.get(0).trim()));
 		}
 
 

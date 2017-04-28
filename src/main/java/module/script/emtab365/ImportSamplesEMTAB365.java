@@ -93,7 +93,8 @@ public class ImportSamplesEMTAB365 extends BaseModule {
 					idPlatform = "GPL570";
 				}
 				else {
-					Document docPlatform = mongoService.createPlatform(idPlatform, null, "9606", "Homo sapiens", null, null, null);
+					Document docPlatform = mongoService.createPlatform(idPlatform, null, "9606", "Homo sapiens",
+							null, null, null, null);
 					UpdateResult res = collectionPlatforms.updateOne(Filters.eq("_id", docPlatform.getString("_id")), new Document("$set", docPlatform));
 					if (res.getMatchedCount()==0) {
 						collectionPlatforms.insertOne(docPlatform);
