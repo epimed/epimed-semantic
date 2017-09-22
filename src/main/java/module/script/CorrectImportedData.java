@@ -37,7 +37,7 @@ import service.FormatService;
 
 public class CorrectImportedData extends BaseModule {
 
-	private String gseNumber = "GSE74193";
+	private String gseNumber = "GSE6791";
 
 	public CorrectImportedData () {
 
@@ -54,29 +54,31 @@ public class CorrectImportedData extends BaseModule {
 		MongoCollection<Document> collection = db.getCollection("samples");
 		List<Document> listDocuments = collection
 				.find(Filters.and(
-						Filters.eq("main_gse_number", gseNumber),
-						Filters.lt("exp_group.age_min", 0.0)
+						Filters.eq("main_gse_number", gseNumber)
 						))
 				.into(new ArrayList<Document>());
 
 		for (int i=0; i<listDocuments.size(); i++) {
-			
+
 			Document doc = listDocuments.get(i);
 			Document expGroup = (Document) doc.get("exp_group");
 
 			String gsmNumber = doc.getString("_id");
 
-			System.out.println(expGroup);
+			if (expGroup.getString("id_topology").equals("C53.9")) {
+				expGroup.put("id_topology", "C76.0");
+				expGroup.put("topology", "Head, face or neck, NOS");
+				expGroup.put("id_topology_group", "C76");
+				expGroup.put("topology_group", "OTHER AND ILL-DEFINED SITES");
+				System.out.println(expGroup);
 
-			expGroup.put("id_tissue_stage", 2);
-			expGroup.put("tissue_stage", "fetal");
-			
-			// Update Mongo document
-			doc.put("exp_group", expGroup);
-			// doc.put("analyzed", true);
-			
-			UpdateResult updateResult = collection.updateOne(Filters.eq("_id", gsmNumber), new Document("$set", doc));
-			
+
+				// Update Mongo document
+				doc.put("exp_group", expGroup);
+				doc.put("analyzed", true);
+
+				UpdateResult updateResult = collection.updateOne(Filters.eq("_id", gsmNumber), new Document("$set", doc));
+			}
 
 		}
 		mongoClient.close();	

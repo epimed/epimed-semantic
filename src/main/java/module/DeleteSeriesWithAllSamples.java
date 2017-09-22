@@ -20,7 +20,7 @@ public class DeleteSeriesWithAllSamples {
 
 	// private String  []  listSeries = {"E-MTAB-3827", "E-MTAB-3871", "E-MTAB-2836", "E-MTAB-2919", "E-MTAB-4344", "E-MTAB-5214", "E-MTAB-513"};
 
-	private String  []  listSeries = {"E-MTAB-2919"};
+	private String  []  listSeries = {"E-MTAB-1733"};
 
 	
 	public DeleteSeriesWithAllSamples() {

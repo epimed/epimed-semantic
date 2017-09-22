@@ -44,9 +44,9 @@ public class ImportArrayExpress {
 	private static String defaultOrganism = "Homo sapiens";
 	private static String defaultPlatform = "rna-seq";
 
-	private String [] listAccessions = {"E-MTAB-3716"};
+	private String [] listAccessions = {"E-MTAB-1733"};
 	private boolean commit = true;
-	private boolean formatIdSample = false; // concatenation with accession (recommended true)
+	private boolean formatIdSample = true; // concatenation with accession (recommended true)
 
 	private WebService webService = new WebService();
 	private MongoService mongoService = new MongoService();
@@ -169,9 +169,11 @@ public class ImportArrayExpress {
 						platform = defaultPlatform;
 					}
 
+
 					Document docSampleExist = collectionSamples.find(Filters.eq("_id", idSample)).first();
 					boolean docAlreadyExist = docSampleExist!=null;
 
+					
 					boolean analysed = false;
 
 					if (docAlreadyExist) {
@@ -221,9 +223,10 @@ public class ImportArrayExpress {
 						if (docAlreadyExist) {
 							collectionSamples.deleteOne(eq("_id", idSample));
 						}
-
-						// ===== Insert data =====
-						collectionSamples.insertOne(docSample);
+						else {
+							// ===== Insert data =====
+							collectionSamples.insertOne(docSample);
+						}
 
 						// ===== Update series for platforms =====
 						List<String> listPlatforms =  collectionSamples.distinct("exp_group.id_platform", Filters.in("series", accession), String.class)

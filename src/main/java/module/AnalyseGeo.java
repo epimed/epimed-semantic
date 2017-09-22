@@ -41,7 +41,7 @@ import service.OntologyService;
 @SuppressWarnings({ "unchecked", "unused" })
 public class AnalyseGeo extends BaseModule {
 
-	private String gseNumber = "E-MTAB-3716";
+	private String gseNumber = "GSE45484";
 	private boolean commit = true;
 
 	// === Categories to update ===

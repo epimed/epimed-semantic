@@ -15,14 +15,15 @@ import com.mongodb.client.result.UpdateResult;
 
 import config.HibernateUtil;
 import config.MongoUtil;
+import model.entity.ClPathology;
+import model.entity.ClTissueStatus;
 import model.entity.ClTopology;
 
 public class UpdateSample {
 
-	private String gseNumber = "E-MTAB-3716";
+	private String gseNumber = "GSE45484";
 	private boolean commit = true;
 
-	@SuppressWarnings("unchecked")
 	public UpdateSample() {
 
 
@@ -31,7 +32,8 @@ public class UpdateSample {
 		Session session = sessionFactory.openSession();
 
 		// ===== INIT =====
-		ClTopology topo = session.get(ClTopology.class, "C58.9"); 
+		ClTissueStatus tissueStatus = session.get(ClTissueStatus.class, 2); 
+		ClPathology pathology = session.get(ClPathology.class, "F31");
 
 
 		// ===== Session Mongo =====
@@ -51,16 +53,16 @@ public class UpdateSample {
 			Document expgroup = (Document) doc.get("exp_group");
 			Document parameters = (Document) doc.get("parameters");
 
-			expgroup.put("id_platform", "GPL10999");
 
-			/*
-			expgroup.put("id_topology", topo.getIdTopology());
-			expgroup.put("topology", topo.getName());
-			expgroup.put("id_topology_group", topo.getClTopologyGroup().getIdGroup());
-			expgroup.put("topology_group", topo.getClTopologyGroup().getName());
-			expgroup.put("tnm_stage", null);
-			 */
-
+			expgroup.put("id_tissue_status", tissueStatus.getIdTissueStatus());
+			expgroup.put("tissue_status", tissueStatus.getName());
+			expgroup.put("id_pathology", pathology.getIdPathology());
+			expgroup.put("pathology", pathology.getName());
+			expgroup.put("treatment", parameters.getString("treatment group"));
+			expgroup.put("time_point", parameters.getString("time point"));
+			
+			String responder = parameters.getString("responder");
+			expgroup.put("responder", responder.equals("YES") ? true : false);
 			doc.append("exp_group", expgroup);
 
 			System.out.println(i + " " + doc.get("_id") + " " + doc.get("analyzed") + " " + expgroup);

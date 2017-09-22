@@ -42,8 +42,8 @@ public class ClMorphologyDao extends BaseDao {
 		Root<ClMorphology> root = criteria.from(ClMorphology.class);
 		criteria.select(root).where(
 				builder.or(
-						builder.like(root.get("name"), "%(%"),
-						builder.like(root.get("name"), "%[%")
+						builder.like(root.<String>get("name"), "%(%"),
+						builder.like(root.<String>get("name"), "%[%")
 						)
 				);
 

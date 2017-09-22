@@ -254,6 +254,7 @@ public class MongoService {
 		.append("submission_date", submissionDate)
 		.append("last_update", lastUpdate)
 		.append("import_date", today)
+		.append("nb_samples", 0)
 		;
 
 		return docSeries;

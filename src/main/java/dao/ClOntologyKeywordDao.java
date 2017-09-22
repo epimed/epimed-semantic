@@ -25,7 +25,7 @@ public class ClOntologyKeywordDao extends BaseDao {
 		CriteriaBuilder builder = session.getCriteriaBuilder();
 		CriteriaQuery<ClOntologyKeyword> criteria = builder.createQuery(ClOntologyKeyword.class);
 		Root<ClOntologyKeyword> root = criteria.from(ClOntologyKeyword.class);
-		criteria.select(root).where(builder.isTrue(root.get("enabled")));
+		criteria.select(root).where(builder.isTrue(root.<Boolean>get("enabled")));
 		return session.createQuery(criteria).getResultList();
 		
 	}

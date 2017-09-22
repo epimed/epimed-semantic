@@ -33,7 +33,7 @@ import service.WebService;
 public class ImportGeo {
 
 
-	private String [] listGseNumber = {"GSE74104"};
+	private String [] listGseNumber = {"GSE45484"};
 
 	private WebService webService = new WebService();
 	private MongoService mongoService = new MongoService();
