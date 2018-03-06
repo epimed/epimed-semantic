@@ -89,7 +89,7 @@ public class MongoService {
 
 	/** ============================================================================================ */
 
-	public Document createExpGroup(Document docSample, String idPlatform, String title, String source) {
+	public Document createExpGroup(Document docSample, String idPlatform, String title, String source, String organism) {
 
 		Document expGroup = new Document();
 
@@ -97,6 +97,7 @@ public class MongoService {
 		.append("id_sample", docSample.getString("_id"))
 		.append("main_gse_number", docSample.getString("main_gse_number"))
 		.append("id_platform", idPlatform)
+		.append("organism", organism)
 		.append("sample_title", title)
 		.append("sample_source", source)
 		.append("sex", null)

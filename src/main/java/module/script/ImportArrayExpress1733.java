@@ -11,16 +11,17 @@
  * Author: Ekaterina Bourova-Flin 
  *
  */
-package module;
+package module.script;
 
 import static com.mongodb.client.model.Filters.eq;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,25 +38,28 @@ import model.bind.AESeries;
 import service.MongoService;
 import service.WebService;
 
-public class ImportArrayExpressInit {
+public class ImportArrayExpress1733 {
 
 	private static String columnSeparator = "\t";
 	private static String lineSeparator = "\n";
-	private static String [] listRunNameParameters = {"RUN_NAME", "ENA_RUN", "Scan Name"};
+	private static String defaultOrganism = "Homo sapiens";
+	private static String defaultPlatform = "rna-seq";
 
-	private String [] listAccessions = {"E-MTAB-2919"};
+	private String [] listAccessions = {"E-MTAB-1733"};
+	private boolean commit = true;
+	private boolean formatIdSample = true; // concatenation with accession (recommended true)
 
 	private WebService webService = new WebService();
 	private MongoService mongoService = new MongoService();
 
-	public ImportArrayExpressInit () {
+	public ImportArrayExpress1733 () {
 
 		// ===== Connection =====
 
 		MongoClient mongoClient = MongoUtil.buildMongoClient();
 		MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
 		MongoCollection<Document> collectionSeries = db.getCollection("series");
-		MongoCollection<Document> collectionSamples = db.getCollection("sample");
+		MongoCollection<Document> collectionSamples = db.getCollection("samples");
 
 		// ===== Pattern =====
 		String patternText = "\\[[\\p{Print}\\p{Space}]+\\]";;
@@ -66,6 +70,9 @@ public class ImportArrayExpressInit {
 		// ===== Series =====
 
 		for (String accession : listAccessions) {
+
+			List<String> accessionAsList = new ArrayList<String>();
+			accessionAsList.add(accession);
 
 			String urlString = "https://www.ebi.ac.uk/arrayexpress/files/" + accession + "/" + accession + ".idf.txt";
 			System.out.println(urlString);
@@ -83,35 +90,32 @@ public class ImportArrayExpressInit {
 			for (String secondaryAccession : series.getListAccessions()) {
 				if (secondaryAccession.startsWith("GSE")) {
 					gseNumber = secondaryAccession;
-					Document gse = db.getCollection("series").find(Filters.eq("_id", secondaryAccession)).first();
+					Document gse = db.getCollection("series")
+							.find(Filters.eq("_id", secondaryAccession)).first();
 					isGseFound = gse!=null;
-					// System.out.println("GEO accession " +  gseNumber + " found: " + isGseFound);
+
 				}
 			}
+
+			int nbImportedSamples = 0;
 
 			if (!isGseFound) {
 
 				// ===== Create Mongo series =====
 
-				List<String> listSeriesAcc = new ArrayList<String>();
-				listSeriesAcc.add(accession);
-
 				Document docSeries = mongoService.createSeries(accession, series.getTitle(), 
 						null, series.getSubmissionDate(), series.getSubmissionDate());
 
 				if (series.getListAccessions()!=null && !series.getListAccessions().isEmpty()) {
-					listSeriesAcc.addAll(series.getListAccessions());
+					docSeries.put("secondary_accessions", series.getListAccessions());
 				}
 
-				docSeries.put("accessions", listSeriesAcc);
-
-
-				UpdateResult updateResult = collectionSeries.updateOne(Filters.eq("_id", accession), new Document("$set", docSeries));
-				if (updateResult.getMatchedCount()==0) {
-					collectionSeries.insertOne(docSeries);
+				if (false) {
+					UpdateResult updateResult = collectionSeries.updateOne(Filters.eq("_id", accession), new Document("$set", docSeries));
+					if (updateResult.getMatchedCount()==0) {
+						collectionSeries.insertOne(docSeries);
+					}
 				}
-
-
 
 				System.out.println(docSeries);
 
@@ -124,113 +128,73 @@ public class ImportArrayExpressInit {
 				String [] clinparts = clindata.split(lineSeparator);
 				List<String> data = new ArrayList<String>(Arrays.asList(clinparts));
 
-				// ===== Samples =====
+				// ===== Recognize samples =====
 
 				List<String> header = this.createHeader(data.get(0), pattern);
 				System.out.println(header);
-
 
 				for (int i=1; i<data.size(); i++) {
 
 					Integer nbSamples = data.size()-1;
 
-					Map<String, Object> mapParameters = this.createParameters(data.get(i), header);
+					Map<String, Object> mapParameters = this.createMapParameters(data.get(i), header);
 					String idSample = this.createIdSample(mapParameters);
 
 					if (idSample==null) {
-						System.err.println("idSample is not recongnized for " + mapParameters);
+						System.err.println("ERROR: idSample is not recongnized for " + accession);
+						System.out.println("Line " + i);
+						System.out.println(mapParameters);
 						mongoClient.close();
 						System.exit(0);
 					}
+					else {
+						if (formatIdSample) {
+							idSample = "E-MTAB-2836" + "-" + idSample;
+							idSample = idSample.trim().replaceAll(" ", "-");
+						}
+					}
+					idSample = idSample.split(" ")[0].trim();
 
-
+					// === Organism ===
 					String organism = (String) mapParameters.get("organism");
 					if (organism==null || organism.isEmpty()) {
-						organism = "Homo sapiens";
+						organism = defaultOrganism;
 					}
+
+					// === Platform ===
 					String platform = (String) mapParameters.get("LIBRARY_STRATEGY");
 					if (platform!=null && !platform.isEmpty()) {
 						platform = platform.toLowerCase().trim();
 					}
 					else {
-						platform="rna-seq";
+						platform = defaultPlatform;
 					}
-					String layout = (String) mapParameters.get("LIBRARY_LAYOUT");
-					if (layout!=null && !layout.isEmpty()) {
-						layout = layout.toLowerCase().trim();
-					}
-
 
 					Document docSampleExist = collectionSamples.find(Filters.eq("_id", idSample)).first();
 					boolean docAlreadyExist = docSampleExist!=null;
 
-					boolean analysed = false;
+					System.out.println("docAlreadyExist " + docAlreadyExist);
 
+
+
+					// === Delete old if already exist ===
 					if (docAlreadyExist) {
-						analysed = (Boolean) docSampleExist.get("analyzed");
-						System.out.println(i + "/" + nbSamples + "\t " + docSeries.get("_id") + "\t " + idSample + ":  already exists in the database, analyzed=" + analysed);
-					}
-					else {
-						System.out.println(i + "/" + nbSamples + "\t " + docSeries.get("_id") + "\t " + idSample);
-					}
+						List<String> listSeries = (List<String>) docSampleExist.get("series");
+						Set<String> setSeries = new HashSet<String>();
+						listSeries.add(accession);
+						setSeries.addAll(listSeries);
+						listSeries.clear();
+						listSeries.addAll(setSeries);
+						docSampleExist.append("series", listSeries);
+						
+						System.out.println(docSampleExist);
 
-					// ===== Sample Document =====
-
-					Document docSample = mongoService.createSample(idSample, (String) docSeries.get("_id"), 
-							listSeriesAcc, organism, (Date) docSeries.get("submission_date"), 
-							(Date) docSeries.get("last_update"), analysed);
-
-					// ===== Mandatory parameters =====
-
-					// Preserve "exp_group" if the document exists already
-
-					Document expGroup = null;
-					if (docAlreadyExist) {
-						expGroup = (Document) docSampleExist.get("exp_group");
-					}
-					else {
-						expGroup = mongoService.createExpGroup(docSample, platform, (String) mapParameters.get("organism part"), (String) mapParameters.get("Source Name"), organism);
-						if (layout!=null) {
-							expGroup.append("layout", layout);
-
-							
-							// run_name
-							int j=0;
-							boolean isFound = false;
-							String runName = null;
-							while (!isFound && j<listRunNameParameters.length) {
-								runName = (String) mapParameters.get(listRunNameParameters[j]);
-								isFound = runName!=null;
-								j++;
-							}
-							if (runName!=null) {
-								expGroup.append("run_name", runName);
-							}
-							
+						if (commit) {
+							collectionSamples.deleteOne(eq("_id", docSampleExist.get("_id")));
+							collectionSamples.insertOne(docSampleExist);
 						}
+
 					}
-
-
-					docSample.append("exp_group", expGroup);
-
-					// ===== Supplementary parameters =====
-
-					Document parameters = mongoService.createParameters(docSample, mapParameters);
-					docSample.append("parameters", parameters);
-
-
-					// === Delete if already exist ===
-					collectionSamples.deleteOne(eq("_id", idSample));
-
-					// ===== Insert data =====
-					collectionSamples.insertOne(docSample);
-
-
-					// ===== Update series for platforms =====
-					List<String> listPlatforms =  collectionSamples.distinct("exp_group.id_platform", Filters.in("series", accession), String.class)
-							.into(new ArrayList<String>());
-					docSeries.append("platforms", listPlatforms);
-					collectionSeries.updateOne(Filters.eq("_id", accession), new Document("$set", docSeries));
 
 				}
 
@@ -238,6 +202,9 @@ public class ImportArrayExpressInit {
 			else {
 				System.out.println("GEO accession " +  gseNumber + " corresponding to  " + accession + " exists already. Skip import.");
 			}
+
+			System.out.println("Number of imported samples: " + nbImportedSamples);
+
 		}
 
 		mongoClient.close();
@@ -248,46 +215,36 @@ public class ImportArrayExpressInit {
 
 	public String createIdSample (Map<String, Object> mapParameters) {
 
+		String [] listKeySample = {"Source Name", "ENA_RUN", "RUN_NAME", "Scan Name"};
+
+		// run_name
+		int j=0;
+		boolean isFound = false;
 		String idSample = null;
-
-		for (Map.Entry<String, Object> entry : mapParameters.entrySet()) {		    
-
-			try {
-				String value = (String) entry.getValue();
-				if (value!=null && (value.contains(".fastq") || value.contains(".gz"))) {
-					String [] parts = value.toString().split("[/\\\\]");
-					String fileName = parts[parts.length-1];
-					idSample = fileName.split(".fastq")[0].trim();
-
-					// System.out.println(value + "\t --> \t " + Arrays.toString(parts) + " " + fileName + "\t --> \t " + idSample);
-
-					return idSample;
-				}
-			}
-			catch (Exception e) {
-				// nothing to do
-			}
+		while (!isFound && j<listKeySample.length) {
+			idSample = (String) mapParameters.get(listKeySample[j]);
+			isFound = idSample!=null;
+			j++;
 		}
+
 		return idSample;
+
 	}
 
 
 	/** =============================================================== */
 
-	public Map<String, Object> createParameters(String dataline, List<String> header) {
+	public Map<String, Object> createMapParameters(String dataline, List<String> header) {
 
 		Map<String, Object> mapParameters = new HashMap<String, Object>();
 
 		String [] parts = dataline.split(columnSeparator);
 
 		for (int i=0; i<parts.length; i++) {
-			String value = parts[i];
-			if (value!=null) {
-				value = value.trim();
-				if (!value.isEmpty()) {
-					mapParameters.put(header.get(i), parts[i]);
-				}
-			}
+			String current = parts[i];
+			String existing = (String) mapParameters.get(header.get(i));
+			String merged = mongoService.mergeParameter(current, existing);
+			mapParameters.put(header.get(i), merged);
 		}
 
 		return mapParameters;
@@ -320,7 +277,7 @@ public class ImportArrayExpressInit {
 	/** =============================================================== */
 
 	public static void main(String[] args) {
-		new ImportArrayExpressInit();
+		new ImportArrayExpress1733();
 	}
 
 	/** ============================================================== */

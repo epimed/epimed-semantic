@@ -59,7 +59,7 @@ public class MatcherAge extends MatcherAbstract {
 				String line = listLines.get(l);
 				
 				String value = this.extractValue(listLines.get(l));	
-				// String value = line.split("age:")[1];
+				// String value = line.split("\\(")[1];
 
 				if (value!=null) {
 					Matcher matcher = pattern.matcher(value);

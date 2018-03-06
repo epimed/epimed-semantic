@@ -18,13 +18,50 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+
+import com.opencsv.CSVReader;
+
 public class FileService {
 
 	private static String columnSeparator = ";";
 	private static String lineSeparator = "\n";
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd");
 
-	
+	/** ============================================================================================================ */
+
+	public List<String[]> loadCsv(String filename, char separator) {
+
+		try {
+			CSVReader reader = new CSVReader(new FileReader(filename), separator);
+
+			List<String[]> csv = reader.readAll();
+			reader.close();
+			return csv;
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/** ============================================================================================================ */
+
+	public void printHeader(List<String[]> csv) {
+		String[] header = csv.get(0);
+		String [] line1 = csv.get(1);
+		for (int i=0; i<header.length; i++) {
+			String h = null;
+			String l =null;
+			try {
+				h=header[i];
+				l=line1[i];
+			}
+			catch (Exception e) {
+				// nothing to do
+			}
+			System.out.println(i + ": " + h + "=" + l);
+		}
+	}
 	
 	/** =============================================================== */
 

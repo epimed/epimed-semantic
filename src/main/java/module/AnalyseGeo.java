@@ -41,19 +41,19 @@ import service.OntologyService;
 @SuppressWarnings({ "unchecked", "unused" })
 public class AnalyseGeo extends BaseModule {
 
-	private String gseNumber = "GSE45484";
+	private String gseNumber = "EPIMED_ANNOTATIONS";
 	private boolean commit = true;
 
 	// === Categories to update ===
 	// private String [] categories = {"biomarker"};
 	private String [] categories = {"pathology", "collection_method", "patient", "topology", "morphology", "biopatho", "tissue_stage", "tissue_status",
-	 		"survival", "tnm", "exposure", "treatment", "biomarker"};
+			"survival", "tnm", "exposure", "treatment", "biomarker"};
 
 	// === Initialization ===
 	private Map <String, Set<String>> mapNotRecognized = new HashMap <String, Set<String>>();
 	private Map <String, Set<String>> mapRecognized = new HashMap <String, Set<String>>();
 	private Map <String, Set<String>> mapRecognizedSeveral = new HashMap <String, Set<String>>();
-	
+
 	public AnalyseGeo () {
 
 
@@ -66,7 +66,7 @@ public class AnalyseGeo extends BaseModule {
 		MongoClient mongoClient = MongoUtil.buildMongoClient();
 		MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
 
-		MongoCollection<Document> collection = db.getCollection("samples");
+		MongoCollection<Document> collection = db.getCollection("sample");
 		List<Document> listDocuments = collection
 				.find(Filters.in("series", gseNumber))
 				// .find(Filters.and(Filters.in("series", gseNumber), Filters.eq("analyzed", false)))
@@ -78,7 +78,7 @@ public class AnalyseGeo extends BaseModule {
 
 		// ===== Begin transaction =====
 		session.beginTransaction();
-		
+
 		// ===== Analyse ======
 
 		for (int i=0; i<listDocuments.size(); i++) {
@@ -102,8 +102,11 @@ public class AnalyseGeo extends BaseModule {
 			parameters.remove("id_sample");
 			parameters.remove("extract_protocol");
 
+			// To remove
+			parameters.remove("lab description");
+			
 			for (int j=0; j<parameters.size(); j++) {
-					listEntries.add(parameters.get(j) + ": " + mapParameters.get(parameters.get(j)));
+				listEntries.add(parameters.get(j) + ": " + mapParameters.get(parameters.get(j)));
 			}
 
 			// === Clear already filled fields (only if necessary) ===
@@ -146,6 +149,7 @@ public class AnalyseGeo extends BaseModule {
 				doc.put("analyzed", true);
 				if (commit) {
 					UpdateResult updateResult = collection.updateOne(Filters.eq("_id", gsmNumber), new Document("$set", doc));
+
 				}
 
 
@@ -155,6 +159,14 @@ public class AnalyseGeo extends BaseModule {
 			}
 
 		}
+
+		if (commit) {
+			MongoCollection<Document> collectionSeries = db.getCollection("series");
+			Document series = collectionSeries.find(Filters.eq("_id", gseNumber)).first();
+			series.put("status", "analyzed");
+			collectionSeries.updateOne(Filters.eq("_id", gseNumber), new Document("$set", series));
+		}
+
 
 		// === Commit transaction ===
 		session.getTransaction().commit();

@@ -39,6 +39,7 @@ public class ImportGeo {
 	private MongoService mongoService = new MongoService();
 
 	public ImportGeo () {
+		
 
 		// ===== Connection =====
 
@@ -77,7 +78,7 @@ public class ImportGeo {
 			
 			// ===== Platforms =====
 
-			MongoCollection<Document> collectionPlatforms = db.getCollection("platforms");
+			MongoCollection<Document> collectionPlatforms = db.getCollection("platform");
 
 			for (int i=0; i<gse.getListGpl().size(); i++) {
 
@@ -99,7 +100,7 @@ public class ImportGeo {
 
 			// ===== Samples ======
 
-			MongoCollection<Document> collectionSamples = db.getCollection("samples");
+			MongoCollection<Document> collectionSamples = db.getCollection("sample");
 
 			// for (int i=0; i<1; i++) {
 			for (int i=0; i<gse.getListGsm().size(); i++) {
@@ -133,7 +134,7 @@ public class ImportGeo {
 					expGroup = (Document) docSampleExist.get("exp_group");
 				}
 				else {
-					expGroup = mongoService.createExpGroup(docSample, gsm.getGplNumber(), gsm.getTitle(), gsm.getSourceName());
+					expGroup = mongoService.createExpGroup(docSample, gsm.getGplNumber(), gsm.getTitle(), gsm.getSourceName(), gsm.getOrganism());
 					
 				}
 				docSample.append("exp_group", expGroup);

@@ -13,8 +13,6 @@
  */
 package module;
 
-import static com.mongodb.client.model.Filters.eq;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -44,9 +42,9 @@ public class ImportArrayExpress {
 	private static String defaultOrganism = "Homo sapiens";
 	private static String defaultPlatform = "rna-seq";
 
-	private String [] listAccessions = {"E-MTAB-1733"};
+	private String [] listAccessions = {"E-MTAB-2919"};
 	private boolean commit = true;
-	private boolean formatIdSample = true; // concatenation with accession (recommended true)
+	private boolean formatIdSample = false; // concatenation with accession (recommended true)
 
 	private WebService webService = new WebService();
 	private MongoService mongoService = new MongoService();
@@ -58,7 +56,7 @@ public class ImportArrayExpress {
 		MongoClient mongoClient = MongoUtil.buildMongoClient();
 		MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
 		MongoCollection<Document> collectionSeries = db.getCollection("series");
-		MongoCollection<Document> collectionSamples = db.getCollection("samples");
+		MongoCollection<Document> collectionSamples = db.getCollection("sample");
 
 		// ===== Pattern =====
 		String patternText = "\\[[\\p{Print}\\p{Space}]+\\]";;
@@ -201,7 +199,7 @@ public class ImportArrayExpress {
 					else {
 						// === New sample ===
 						System.out.println(i + "/" + nbSamples + "\t " + docSeries.get("_id") + "\t " + idSample);
-						expGroup = mongoService.createExpGroup(docSample, platform, null, null);
+						expGroup = mongoService.createExpGroup(docSample, platform, null, null, organism);
 						parameters = mongoService.createParameters(docSample, mapParameters);
 						nbImportedSamples ++;
 					}
@@ -219,9 +217,10 @@ public class ImportArrayExpress {
 
 					if (commit) {
 
-						// === Delete old if already exist ===
+						// === Update old if already exist ===
 						if (docAlreadyExist) {
-							collectionSamples.deleteOne(eq("_id", idSample));
+							// collectionSamples.deleteOne(eq("_id", idSample));
+							collectionSamples.updateOne(Filters.eq("_id", idSample), new Document("$set", docSample));
 						}
 						else {
 							// ===== Insert data =====
@@ -254,7 +253,7 @@ public class ImportArrayExpress {
 
 	public String createIdSample (Map<String, Object> mapParameters) {
 
-		String [] listKeySample = {"Source Name", "ENA_RUN", "RUN_NAME", "Scan Name"};
+		String [] listKeySample = {"Source Name", "BioSD_Sample", "ENA_RUN", "RUN_NAME", "Scan Name"};
 
 		// run_name
 		int j=0;

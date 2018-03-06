@@ -14,9 +14,15 @@
 package module.script;
 
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -30,11 +36,9 @@ import config.MongoUtil;
 import module.BaseModule;
 import service.FormatService;
 
-public class CorrectImportedData extends BaseModule {
+public class AddSeriesToSamples extends BaseModule {
 
-	private String gseNumber = "PRJNA270632";
-
-	public CorrectImportedData () {
+	public AddSeriesToSamples () {
 
 		// ===== Service =====
 		FormatService formatService = new FormatService ();
@@ -45,30 +49,34 @@ public class CorrectImportedData extends BaseModule {
 		MongoClient mongoClient = MongoUtil.buildMongoClient();
 		MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
 
+		Set<String> setProjects = new HashSet<String>();
 
 		MongoCollection<Document> collection = db.getCollection("sample");
 
-		Bson filters = Filters.and(Filters.eq("main_gse_number", gseNumber));
+		Bson filters = Filters.and(Filters.in("series", "PRJNA270632"));
 
 		List<Document> listDocuments = collection.find(filters).into(new ArrayList<Document>());
 
 		for (int i=0; i<listDocuments.size(); i++) {
 
 			Document doc = listDocuments.get(i);
-			Document expgroup = (Document) doc.get("exp_group");
-			Document parameters = (Document) doc.get("parameters");
-
-			expgroup.append("id_tissue_stage", 2);
-			expgroup.append("tissue_stage", "fetal");
+			Document expgroup = doc.get("exp_group", Document.class);
 			
-			// Update Mongo document
-			doc.put("exp_group", expgroup);
-			// doc.put("parameters", parameters);
-			doc.put("analyzed", true);
+			if (expgroup.get("exp_Mcount")!=null) {
+				
+				List<String> projects = doc.get("series", ArrayList.class);
+				setProjects.clear();
+				setProjects.addAll(projects);
+				setProjects.add("TISSUE_SPECIFIC_GENES_HS");
+				doc.put("series", setProjects);
+				System.out.println(doc.getString("_id") + " " + projects + " -> " + setProjects);
+				
+				collection.updateOne(Filters.eq("_id", doc.getString("_id")), new Document("$set", doc));
+			}
+			
+			
 
-			System.out.println(expgroup);
-
-			collection.updateOne(Filters.eq("_id", doc.getString("_id")), new Document("$set", doc));
+			
 		}
 
 		mongoClient.close();	
@@ -77,7 +85,7 @@ public class CorrectImportedData extends BaseModule {
 	/** =============================================================== */
 
 	public static void main(String[] args) {
-		new CorrectImportedData();
+		new AddSeriesToSamples();
 	}
 
 	/** ============================================================== */

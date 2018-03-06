@@ -106,7 +106,7 @@ public class ImportSamplesEMTAB365 extends BaseModule {
 
 				// === exp_group ===
 
-				Document expgroup = mongoService.createExpGroup(docSample, idPlatform, null, null);
+				Document expgroup = mongoService.createExpGroup(docSample, idPlatform, null, null, organism);
 				docSample.append("exp_group", expgroup);
 
 				// === parameters ===

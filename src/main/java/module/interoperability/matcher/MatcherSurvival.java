@@ -49,6 +49,7 @@ public class MatcherSurvival extends MatcherAbstract {
 			if (line.toLowerCase().contains("time overall survival")  
 					|| line.toLowerCase().contains("time of followup")
 					|| line.toLowerCase().contains("os")
+					|| line.toLowerCase().contains("survival time")
 					) {
 				isFound = true;
 				Double osMonths =  this.recognizePeriod(line, value, pattern);
@@ -56,12 +57,13 @@ public class MatcherSurvival extends MatcherAbstract {
 					survival.setOsMonths(osMonths);
 				}
 			}
-			
+
 			// ===== Disease free survival DFS ======
 			if (line.toLowerCase().contains("time to local recurrence") 
 					|| line.toLowerCase().contains("t rfs")
 					|| line.toLowerCase().contains("mfs")
 					|| line.toLowerCase().contains("dfs-month")
+					|| line.toLowerCase().contains("time to hcc recurrence")
 					) 
 			{
 				isFound = true;
@@ -194,7 +196,7 @@ public class MatcherSurvival extends MatcherAbstract {
 		if (number!=null && number==0.0){
 			number = null;
 		}
-		
+
 		return number;
 
 	}

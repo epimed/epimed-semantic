@@ -20,7 +20,7 @@ public class DeleteSeriesWithAllSamples {
 
 	// private String  []  listSeries = {"E-MTAB-3827", "E-MTAB-3871", "E-MTAB-2836", "E-MTAB-2919", "E-MTAB-4344", "E-MTAB-5214", "E-MTAB-513"};
 
-	private String  []  listSeries = {"E-MTAB-1733"};
+	private String  []  listSeries = {"E-MTAB-2919"};
 
 	
 	public DeleteSeriesWithAllSamples() {
@@ -28,7 +28,7 @@ public class DeleteSeriesWithAllSamples {
 		MongoClient mongoClient = MongoUtil.buildMongoClient();
 		MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
 
-		MongoCollection<Document> collectionSamples = db.getCollection("samples");
+		MongoCollection<Document> collectionSamples = db.getCollection("sample");
 		MongoCollection<Document> collectionSeries = db.getCollection("series");
 
 		for (String idSeries : listSeries) {

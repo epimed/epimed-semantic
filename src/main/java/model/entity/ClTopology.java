@@ -26,6 +26,7 @@ public class ClTopology implements java.io.Serializable {
 	private String idTopology;
 	private ClTopologyGroup clTopologyGroup;
 	private String name;
+	private ClEpimedGroup clEpimedGroup;
 	private Set<ClCellLine> clCellLines = new HashSet<ClCellLine>(0);
 
 	public ClTopology() {
@@ -41,6 +42,17 @@ public class ClTopology implements java.io.Serializable {
 		this.idTopology = idTopology;
 		this.clTopologyGroup = clTopologyGroup;
 		this.name = name;
+		this.clCellLines = clCellLines;
+	}
+	
+
+	public ClTopology(String idTopology, ClTopologyGroup clTopologyGroup, String name, ClEpimedGroup clEpimedGroup,
+			Set<ClCellLine> clCellLines) {
+		super();
+		this.idTopology = idTopology;
+		this.clTopologyGroup = clTopologyGroup;
+		this.name = name;
+		this.clEpimedGroup = clEpimedGroup;
 		this.clCellLines = clCellLines;
 	}
 
@@ -73,6 +85,18 @@ public class ClTopology implements java.io.Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_epimed_group", nullable = false)
+	public ClEpimedGroup getClEpimedGroup() {
+		return this.clEpimedGroup;
+	}
+
+	public void setClEpimedGroup(ClEpimedGroup clEpimedGroup) {
+		this.clEpimedGroup = clEpimedGroup;
+	}
+	
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "clTopology")
 	public Set<ClCellLine> getClCellLines() {
@@ -111,10 +135,9 @@ public class ClTopology implements java.io.Serializable {
 
 	@Override
 	public String toString() {
-		return "ClTopology [idTopology=" + idTopology + ", clTopologyGroup=" + clTopologyGroup + ", name=" + name + "]";
+		return "ClTopology [idTopology=" + idTopology + ", clTopologyGroup=" + clTopologyGroup + ", name=" + name
+				+ ", clEpimedGroup=" + clEpimedGroup + "]";
 	}
-	
-	
-	
+
 
 }

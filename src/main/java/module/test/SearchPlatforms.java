@@ -41,8 +41,8 @@ public class SearchPlatforms extends BaseModule {
 
 		MongoClient mongoClient = MongoUtil.buildMongoClient();
 		MongoDatabase db = mongoClient.getDatabase("epimed_experiments");
-		MongoCollection<Document> collectionSamples = db.getCollection("samples");
-		MongoCollection<Document> collectionPlatforms = db.getCollection("platforms");
+		MongoCollection<Document> collectionSamples = db.getCollection("sample");
+		MongoCollection<Document> collectionPlatforms = db.getCollection("platform");
 
 		
 		List<Document> list = collectionSamples
@@ -59,8 +59,8 @@ public class SearchPlatforms extends BaseModule {
 		}
 		
 		
-		collectionPlatforms.find(Filters.regex("title", ".*ethyl.*")).forEach(printBlock);
-		// collectionPlatforms.find(Filters.eq("id_organism", "9606")).forEach(printBlock);
+		// collectionPlatforms.find(Filters.regex("title", ".*ethyl.*")).forEach(printBlock);
+		collectionPlatforms.find(Filters.eq("id_organism", "9606")).forEach(printBlock);
 		
 		
 		

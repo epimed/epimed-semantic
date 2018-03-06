@@ -13,6 +13,14 @@ public class FormatService {
 	public FormatService() {
 		super();
 	}
+	
+	/** ================================================================================ */
+
+	public double round(double value, int decimals) {
+		double precision = Math.pow(10, decimals);
+		return (double) Math.round(value * precision) / precision;
+	}
+
 
 	/** ================================================================================= */
 

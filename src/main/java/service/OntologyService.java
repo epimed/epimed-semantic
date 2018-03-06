@@ -160,6 +160,8 @@ public class OntologyService {
 					
 					if (isKeywordFound) {
 
+						// System.out.println("Keyword " + keyword + " found in line " + line);
+						
 						ClOntologyCategory ontologyCategory = ontologyKeyword.getClOntologyCategory();
 						isPrimaryCategory = true;
 

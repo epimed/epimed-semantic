@@ -1,5 +1,7 @@
 package dao;
 
+import java.util.List;
+
 import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -30,5 +32,18 @@ public class ClTopologyDao extends BaseDao {
 		}
 	}
 
+	/** ============================================================= */
+
+	public List<ClTopology> findAll() {
+		
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<ClTopology> criteria = builder.createQuery(ClTopology.class);
+			Root<ClTopology> root = criteria.from(ClTopology.class);
+			criteria.select(root);
+			criteria.orderBy(builder.asc(root.get("idTopology")));
+			return session.createQuery(criteria).getResultList();
+	}
+	
+	
 	/** ============================================================= */
 }
